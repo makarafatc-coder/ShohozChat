@@ -100,7 +100,7 @@ storageBucket:",
         // ============================================
         googleLoginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => alert("লগইন এরর: " + error.message));
+            auth.signInWithRedirect(provider).catch(error => alert("লগইন এরর: " + error.message));
         });
 
         logoutBtn.addEventListener('click', () => auth.signOut());
