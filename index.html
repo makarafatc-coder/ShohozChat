@@ -1,629 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Feni Tech Finder | Service Hub</title>
-    
-    <script>
-        // 📥 আরেফাত ভাই, এখানে আপনার .apk ফাইলের ডিরেক্ট ডাউনলোড লিংকটি বসিয়ে দিন
-        const APP_DOWNLOAD_LINK = "https://drive.google.com/file/d/1Ay60oRDVmWgLfgAgonGLDpI8djMiTaS5/view?usp=drive_link";
-    </script>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2563eb">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShohojChat</title>
+    <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
-        
-        .modal-active { display: flex !important; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .glass-card { background: white; border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; }
-        .hero-overlay { background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)); }
-        .input-box { width: 100%; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; outline: none; margin-bottom: 10px; font-weight: 600; font-size: 0.875rem; }
-        @media (min-width: 768px) { .input-box { padding: 0.9rem; font-size: 1rem; border-radius: 1rem; margin-bottom: 12px; } }
-        .close-btn { position: absolute; top: 15px; right: 15px; color: #94a3b8; cursor: pointer; font-size: 1.25rem; transition: 0.3s; }
-        @media (min-width: 768px) { .close-btn { top: 20px; right: 20px; font-size: 1.5rem; } }
-        .close-btn:hover { color: #ef4444; }
-        .verify-badge { color: #1d9bf0; font-size: 1rem; margin-left: 4px; }
-        .tech-card { transition: 0.3s; border: 1px solid #f1f5f9; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        @media (min-width: 768px) { .tech-card { border-radius: 20px; padding: 20px; } }
-        .tech-card:hover { transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* Hide scrollbar for Chrome, Safari and Opera */
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 h-screen flex items-center justify-center p-0 md:p-4">
 
-    <nav class="bg-white/90 backdrop-blur-md border-b py-3 md:py-4 sticky top-0 z-[100] shadow-sm">
-        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-black text-blue-600 cursor-pointer" onclick="location.reload()">Feni <span class="text-slate-800">Tech Finder</span></h1>
-            
-            <div id="navButtons" class="flex items-center gap-2 md:gap-3">
-                <div id="loggedOutUI" class="flex gap-1 md:gap-2 items-center">
-                    <script>document.write(`<a href="${APP_DOWNLOAD_LINK}" download target="_blank" class="bg-emerald-600 text-white px-2.5 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold shadow-md text-[11px] md:text-sm flex items-center gap-1 active:scale-95 transition"><i class="fab fa-android"></i> App</a>`);</script>
-                    
-                    <button onclick="openModal('login')" class="font-bold text-slate-600 px-2 py-1.5 md:px-4 md:py-2 text-xs md:text-sm">Login</button>
-                    <button onclick="openModal('register')" class="bg-blue-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold shadow-md shadow-blue-200 text-xs md:text-sm">Join</button>
-                    <button onclick="openModal('adminLogin')" class="bg-slate-100 text-slate-600 p-1.5 md:p-2 rounded-lg md:rounded-xl text-xs md:text-base"><i class="fas fa-user-shield"></i></button>
+    <!-- লগইন স্ক্রিন -->
+    <div id="loginScreen" class="bg-white p-8 rounded-2xl shadow-2xl text-center w-full max-w-sm mx-auto">
+        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-comments text-4xl text-blue-600"></i>
+        </div>
+        <h1 class="text-3xl font-bold mb-2 text-gray-800">ShohojChat</h1>
+        <p class="text-gray-500 mb-8">সহজে কথা বলুন, বন্ধুদের সাথে যুক্ত থাকুন</p>
+        <button id="googleLoginBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl w-full hover:bg-blue-700 transition duration-300 flex items-center justify-center gap-3 font-semibold shadow-lg">
+            <i class="fa-brands fa-google"></i> Google দিয়ে লগইন করুন
+        </button>
+        <p class="text-xs text-gray-400 mt-6">লগইন করলে আপনি আমাদের শর্তাবলী মেনে নিচ্ছেন</p>
+    </div>
+
+    <!-- চ্যাট স্ক্রিন -->
+    <div id="chatScreen" class="hidden bg-white w-full max-w-md h-full md:h-[90vh] flex flex-col rounded-none md:rounded-2xl shadow-2xl overflow-hidden">
+        <!-- হেডার -->
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-users"></i>
                 </div>
-                <div id="loggedInUI" class="hidden flex items-center gap-2 md:gap-4">
-                    <script>document.write(`<a href="${APP_DOWNLOAD_LINK}" download target="_blank" class="bg-emerald-600 text-white px-2.5 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold shadow-md text-[11px] md:text-sm flex items-center gap-1 active:scale-95 transition"><i class="fab fa-android"></i> App</a>`);</script>
-                    
-                    <span id="userRoleBadge" class="hidden md:inline-block text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full"></span>
-                    <button id="dashBtn" onclick="openModal('dashboard')" class="hidden bg-blue-50 text-blue-600 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm">Dashboard</button>
-                    <button onclick="openModal('profile')">
-                        <img id="navProfileImg" src="https://via.placeholder.com/150" class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-blue-600 object-cover">
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="relative w-full h-[380px] md:h-[540px] overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 hero-overlay flex flex-col items-center justify-center text-center px-4 md:px-6 mt-6 md:mt-0">
-            <h2 class="text-white text-2xl md:text-5xl lg:text-6xl font-black mb-2 md:mb-4 drop-shadow-xl leading-tight">ফেনীর সেরা এক্সপার্ট খুঁজুন</h2>
-            <p class="text-blue-100 text-xs md:text-lg lg:text-xl font-medium mb-4 md:mb-6 max-w-2xl px-2">এসি, ফ্রিজ, ওয়াটার ফিল্টার, জেনারেটর, বাইক মেকানিক ও খতিয়ান লেখকসহ যেকোনো জরুরি সেবার জন্য যোগাযোগ করুন।</p>
-            
-            <script>
-                document.write(`
-                    <a href="${APP_DOWNLOAD_LINK}" download target="_blank" class="mb-5 md:mb-8 inline-flex items-center gap-2 bg-yellow-400 text-slate-900 font-black px-5 py-2.5 md:px-7 md:py-3.5 rounded-xl md:rounded-2xl shadow-lg shadow-yellow-500/20 hover:bg-yellow-300 active:scale-95 transition text-xs md:text-base">
-                        <i class="fab fa-android text-sm md:text-lg"></i> আমাদের এন্ড্রয়েড অ্যাপ ডাউনলোড করুন
-                    </a>
-                `);
-            </script>
-
-            <div class="bg-white p-1.5 md:p-2 rounded-xl md:rounded-2xl shadow-2xl flex w-full max-w-xl border-[3px] md:border-4 border-white/20 mb-6 md:mb-0">
-                <input type="text" id="searchInput" placeholder="সার্ভিস (যেমন: ac, ফ্রিজ, খতিয়ান) লিখুন..." class="bg-transparent w-full px-3 md:px-6 text-slate-800 font-bold outline-none text-xs md:text-base">
-                <div class="bg-blue-100 text-blue-600 px-4 py-2 md:px-5 md:py-3 rounded-lg md:rounded-xl font-black text-sm md:text-base"><i class="fas fa-search"></i></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mx-auto px-4 md:px-6 -mt-8 md:-mt-10 relative z-10">
-        <div class="bg-white shadow-xl rounded-2xl md:rounded-3xl p-2 md:p-4 flex gap-2 md:gap-3 overflow-x-auto no-scrollbar border border-slate-100 items-center">
-            <button id="btnCatAll" class="bg-blue-600 text-white px-5 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl font-black shrink-0 shadow-md shadow-blue-200 text-xs md:text-base">সব</button>
-            
-            <button id="btnCatKhotiyan" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">খতিয়ান লেখক</button>
-            <button id="btnCatAC" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">এসি মেকানিক</button>
-            <button id="btnCatFridge" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">ফ্রিজ সার্ভিস</button>
-            <button id="btnCatElectric" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">ইলেকট্রিশিয়ান</button>
-            
-            <button id="btnCatPlumber" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">প্লাম্বার</button>
-            <button id="btnCatGas" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">গ্যাস ও চুলা</button>
-            <button id="btnCatWashing" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">ওয়াশিং মেশিন</button>
-            <button id="btnCatFilter" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">পানি ফিল্টার</button>
-            <button id="btnCatGen" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">জেনারেটর</button>
-            <button id="btnCatVehicle" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">গাড়ি ও বাইক</button>
-            <button id="btnCatIps" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">IPS & ব্যাটারি</button>
-            <button id="btnCatCctv" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">CCTV এক্সপার্ট</button>
-            <button id="btnCatAppliance" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">টিভি ও ওভেন</button>
-            <button id="btnCatIt" class="bg-slate-50 text-slate-600 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl font-bold border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition shrink-0 text-xs md:text-base">আইটি সার্ভিস</button>
-        </div>
-    </div>
-
-    <main class="container mx-auto px-4 md:px-6 py-10 md:py-16">
-        <h3 class="text-lg md:text-xl font-black text-slate-800 mb-6 md:mb-8 flex items-center gap-2">
-            <i class="fas fa-tools text-blue-600"></i> প্রোফেশনাল টেকনিশিয়ানগণ
-        </h3>
-        <div id="techList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
-    </main>
-
-    <div id="registerModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass-card w-full max-w-md p-6 md:p-10 text-center">
-            <i class="fas fa-times close-btn" onclick="closeModal('register')"></i>
-            <h2 class="text-xl md:text-2xl font-black mb-4 md:mb-6 text-blue-600">নতুন একাউন্ট</h2>
-            
-            <select id="regRole" class="input-box border-blue-400 bg-blue-50 text-blue-800" onchange="toggleRoleFields()">
-                <option value="Customer">আমি কাস্টমার (সার্ভিস নেবো)</option>
-                <option value="Technician">আমি টেকনিশিয়ান (কাজ করবো)</option>
-            </select>
-
-            <input type="text" id="regName" placeholder="পুরো নাম" class="input-box">
-            <input type="tel" id="regPhone" placeholder="মোবাইল নাম্বার" class="input-box">
-            <input type="text" id="regLocation" placeholder="এলাকা (যেমন: ট্রাংক রোড)" class="input-box">
-            
-            <div id="expertFields" class="hidden">
-                <select id="regExpertise" class="input-box">
-                    <option value="">কাজের ধরন সিলেক্ট করুন</option>
-                    <option value="Khotiyan Writer">Khotiyan Writer (খতিয়ান লেখক)</option>
-                    <option value="AC Mechanic">AC Mechanic (এসি)</option>
-                    <option value="Fridge Expert">Fridge Expert (ফ্রিজ)</option>
-                    <option value="Electrician">Electrician (কারেন্ট)</option>
-                    <option value="Plumber">Plumber (প্লাম্বার)</option>
-                    <option value="Gas & Stove">Gas & Stove (গ্যাস/চুলা)</option>
-                    <option value="Washing Machine">Washing Machine (ওয়াশিং)</option>
-                    <option value="Water Purifier">Water Purifier (ফিল্টার)</option>
-                    <option value="Generator Tech">Generator (জেনারেটর)</option>
-                    <option value="Car & Bike">Car & Bike (গাড়ি/বাইক)</option>
-                    <option value="IPS & Battery">IPS & Battery (আইপিএস)</option>
-                    <option value="CCTV Expert">CCTV Expert (সিসিটিভি)</option>
-                    <option value="Home Appliance">Home Appliance (টিভি/ওভেন)</option>
-                    <option value="IT Technician">IT Technician (কম্পিউটার)</option>
-                </select>
-            </div>
-
-            <input type="password" id="regPass" placeholder="পাসওয়ার্ড" class="input-box">
-            <button onclick="handleDirectRegister()" class="w-full bg-blue-600 text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-black mt-2 text-sm md:text-base">রেজিস্ট্রেশন করুন</button>
-        </div>
-    </div>
-
-    <div id="loginModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass-card w-full max-w-sm p-6 md:p-10 text-center">
-            <i class="fas fa-times close-btn" onclick="closeModal('login')"></i>
-            <h2 class="text-xl md:text-2xl font-black mb-4 md:mb-6 text-blue-600">লগইন</h2>
-            <input type="tel" id="loginPhone" placeholder="মোবাইল নাম্বার" class="input-box">
-            <input type="password" id="loginPass" placeholder="পাসওয়ার্ড" class="input-box">
-            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-black mt-2 text-sm md:text-base">প্রবেশ করুন</button>
-        </div>
-    </div>
-
-    <div id="adminLoginModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass-card w-full max-w-sm p-6 md:p-10 text-center">
-            <i class="fas fa-times close-btn" onclick="closeModal('adminLogin')"></i>
-            <h2 class="text-xl md:text-2xl font-black mb-4 md:mb-6 text-red-600">Admin Login</h2>
-            <input type="text" id="adminUser" placeholder="Username" class="input-box">
-            <input type="password" id="adminPass" placeholder="Password" class="input-box">
-            <button onclick="handleAdminLogin()" class="w-full bg-red-600 text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-black mt-2 text-sm md:text-base">Admin প্রবেশ</button>
-        </div>
-    </div>
-
-    <div id="adminPanelModal" class="hidden fixed inset-0 bg-slate-100 z-[300] flex flex-col p-2 md:p-10 overflow-y-auto">
-        <div class="container mx-auto max-w-6xl glass-card p-4 md:p-8 min-h-full">
-            <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-black text-red-600">Control Panel</h2>
-                    <p class="text-[10px] md:text-xs text-slate-400 font-bold mt-1">কাস্টমার এবং টেকনিশিয়ান লিস্ট</p>
-                </div>
-                <button onclick="closeModal('adminPanel')" class="bg-red-100 text-red-600 p-2 md:p-3 rounded-full text-sm md:text-base"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="flex gap-2 md:gap-4 mb-4 md:mb-6 border-b pb-4">
-                <button id="tabTechBtn" onclick="switchAdminTab('tech')" class="bg-blue-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm">Technicians</button>
-                <button id="tabCustBtn" onclick="switchAdminTab('cust')" class="bg-slate-200 text-slate-700 px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm">Customers</button>
-            </div>
-
-            <div id="techTableContainer" class="overflow-x-auto">
-                <table class="w-full text-left font-bold text-xs md:text-sm min-w-[600px] md:min-w-[800px]">
-                    <thead class="bg-slate-50 text-slate-500">
-                        <tr>
-                            <th class="p-2 md:p-4">Expert Info</th>
-                            <th class="p-2 md:p-4">Category</th>
-                            <th class="p-2 md:p-4">Contact</th>
-                            <th class="p-2 md:p-4">Verification</th>
-                            <th class="p-2 md:p-4 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTechList" class="text-slate-700"></tbody>
-                </table>
-            </div>
-
-            <div id="custTableContainer" class="overflow-x-auto hidden">
-                <table class="w-full text-left font-bold text-xs md:text-sm min-w-[500px] md:min-w-[800px]">
-                    <thead class="bg-slate-50 text-slate-500">
-                        <tr>
-                            <th class="p-2 md:p-4">Customer Name</th>
-                            <th class="p-2 md:p-4">Phone</th>
-                            <th class="p-2 md:p-4">Location</th>
-                            <th class="p-2 md:p-4 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminCustList" class="text-slate-700"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-50 z-[250] flex flex-col p-4 md:p-8 overflow-y-auto">
-        <div class="container mx-auto max-w-5xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl md:text-2xl font-black text-slate-800">My Dashboard</h2>
-                <button onclick="closeModal('dashboard')" class="text-slate-400 text-xl md:text-2xl"><i class="fas fa-times-circle"></i></button>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-6">
-                <div class="glass-card p-4 md:p-6 bg-blue-600 text-white col-span-2 md:col-span-1"><p class="text-[10px] md:text-xs opacity-80">মোট আয়</p><h3 id="dashIncome" class="text-2xl md:text-3xl font-black mt-1">৳ ০</h3></div>
-                <div class="glass-card p-4 md:p-6"><p class="text-[10px] md:text-xs text-slate-400">কাজ সম্পন্ন</p><h3 id="dashDone" class="text-xl md:text-3xl font-black mt-1">০</h3></div>
-                <div class="glass-card p-4 md:p-6 border-l-4 md:border-l-8 border-yellow-400"><p class="text-[10px] md:text-xs text-slate-400">স্ট্যাটাস</p><h3 id="dashStatus" class="text-sm md:text-xl font-black uppercase mt-1">Unverified</h3></div>
-            </div>
-            <div class="glass-card p-4 md:p-8">
-                <div class="flex justify-between items-center mb-4"><h4 class="font-black text-sm md:text-lg">সাম্প্রতিক কাজ</h4><button onclick="document.getElementById('jobAddModal').classList.remove('hidden')" class="bg-blue-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold">+ Add Job</button></div>
-                <div class="overflow-x-auto"><table class="w-full text-left font-bold text-slate-600 min-w-[300px]"><tbody id="jobList"></tbody></table></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="profileModal" class="hidden fixed inset-0 bg-black/60 z-[260] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="glass-card w-full max-w-sm overflow-hidden">
-            <div class="h-20 md:h-24 hero-overlay relative"><i class="fas fa-times absolute top-3 md:top-4 right-3 md:right-4 text-white cursor-pointer text-lg" onclick="closeModal('profile')"></i></div>
-            <div class="px-6 pb-6 text-center">
-                <div class="relative -top-10 md:-top-12 inline-block"><img id="profileImg" src="https://via.placeholder.com/150" class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white shadow-lg object-cover"><label class="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 md:p-2 rounded-full cursor-pointer"><i class="fas fa-camera text-[10px] md:text-xs"></i><input type="file" class="hidden" id="profileFileInp"></label></div>
-                <div class="-mt-6 md:-mt-8 mb-4 md:mb-6"><h3 id="profileName" class="text-lg md:text-xl font-black inline-block">Name</h3><span id="verifyBadgeArea"></span><p id="profilePhone" class="text-slate-400 text-[10px] md:text-xs font-bold"></p></div>
-                <div class="space-y-2 md:space-y-3">
-                    <input type="text" id="editLocation" placeholder="আপনার লোকেশন" class="input-box">
-                    <button onclick="saveProfileFull()" class="w-full bg-blue-600 text-white py-2.5 md:py-3 rounded-lg md:rounded-xl font-black text-sm md:text-base">Update Info</button>
-                    <button onclick="document.getElementById('verifyModal').classList.remove('hidden')" id="applyBtn" class="hidden w-full bg-yellow-400 text-blue-900 py-2.5 md:py-3 rounded-lg md:rounded-xl font-black text-sm md:text-base">Apply ID Verify</button>
-                    <button onclick="logout()" class="w-full text-red-500 font-bold text-xs md:text-sm mt-2">Logout Account</button>
+                    <h2 class="font-bold text-lg leading-tight">ShohojChat Group</h2>
+                    <p class="text-xs text-blue-200" id="onlineStatus">অনলাইন</p>
                 </div>
             </div>
+            <button id="logoutBtn" class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </div>
+
+        <!-- মেসেজ লিস্ট -->
+        <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4 no-scrollbar">
+            <!-- মেসেজগুলো এখানে আসবে -->
+        </div>
+
+        <!-- মেসেজ ইনপুট -->
+        <div class="p-3 border-t bg-white flex gap-2 items-center rounded-b-2xl">
+            <button class="text-gray-400 hover:text-blue-500 p-2 text-xl transition"><i class="fa-solid fa-paperclip"></i></button>
+            <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." class="flex-1 bg-gray-100 border-0 rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-700">
+            <button id="sendBtn" class="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-paper-plane text-lg"></i>
+            </button>
         </div>
     </div>
 
-    <div id="verifyModal" class="hidden fixed inset-0 bg-black/80 z-[400] flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-xs p-6 text-center">
-            <i class="fas fa-times close-btn" onclick="document.getElementById('verifyModal').classList.add('hidden')"></i>
-            <h3 class="font-black mb-4 text-sm md:text-base">Identity Verification</h3>
-            <div class="space-y-3">
-                <p class="text-[10px] md:text-xs text-left text-slate-500 font-bold">NID / ID Card:</p>
-                <input type="file" class="text-[10px] md:text-xs w-full" id="nidFileInp"><img id="vNidPrev" class="hidden h-16 w-full object-cover rounded mt-1">
-                <p class="text-[10px] md:text-xs text-left text-slate-500 font-bold mt-2">Selfie Photo:</p>
-                <input type="file" class="text-[10px] md:text-xs w-full" id="selfieFileInp"><img id="vSelfPrev" class="hidden h-16 w-full object-cover rounded mt-1">
-                <button onclick="submitVerify()" class="w-full bg-green-600 text-white py-2 md:py-3 rounded-lg font-black mt-3 text-sm">Submit Admin</button>
-            </div>
-        </div>
-    </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <div id="jobAddModal" class="hidden fixed inset-0 bg-black/70 z-[400] flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-6"><h3 class="font-black mb-4 text-sm md:text-base">Add New Work</h3><input type="text" id="custName" placeholder="Customer Name" class="input-box"><input type="text" id="jobType" placeholder="Service Info" class="input-box"><input type="number" id="jobBill" placeholder="Bill (৳)" class="input-box"><button onclick="saveJob()" class="w-full bg-blue-600 text-white py-2 md:py-3 rounded-lg font-black text-sm">Save Complete</button><button onclick="document.getElementById('jobAddModal').classList.add('hidden')" class="w-full text-slate-400 font-bold text-xs mt-3">Cancel</button></div>
-    </div>
+    <script>
+        // ============================================
+        // ১. আপনার Firebase Config এখানে বসান
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, get, child, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAeYzfXzevcY_OI4p2ZbNCF4JEkqu6X7bs",
-        authDomain: "feni-techfinder-ab409.firebaseapp.com",
-        databaseURL: "https://feni-techfinder-ab409-default-rtdb.firebaseio.com",
-        projectId: "feni-techfinder-ab409",
-        storageBucket: "feni-techfinder-ab409.firebasestorage.app",
-        messagingSenderId: "898223486648",
-        appId: "1:898223486648:web:bd11dc3b85d0ea5cd6a64d"
-    };
+        // UI Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const chatScreen = document.getElementById('chatScreen');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const messageInput = document.getElementById('messageInput');
+        const messagesContainer = document.getElementById('messagesContainer');
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    window.currentUser = null;
-    window.allUsers = [];
-    const OFFICIAL_COMPANY_NUMBER = "01816167910"; 
-
-    window.openModal = (id) => { document.getElementById(id + 'Modal').classList.add('modal-active'); if(id === 'dashboard' || id === 'profile') loadAllData(); };
-    window.closeModal = (id) => { document.getElementById(id + 'Modal').classList.remove('modal-active'); };
-
-    window.toggleRoleFields = () => {
-        const role = document.getElementById('regRole').value;
-        document.getElementById('expertFields').style.display = (role === 'Technician') ? 'block' : 'none';
-    };
-
-    window.handleDirectRegister = async () => {
-        const role = document.getElementById('regRole').value;
-        const name = document.getElementById('regName').value.trim();
-        const phone = document.getElementById('regPhone').value.trim();
-        const locationStr = document.getElementById('regLocation').value.trim();
-        const pass = document.getElementById('regPass').value;
-        const expertise = document.getElementById('regExpertise').value;
-
-        if(!name || !phone || !locationStr || !pass) { alert("সব ঘর পূরণ করুন!"); return; }
-        if(role === 'Technician' && !expertise) { alert("কাজের ধরন সিলেক্ট করুন!"); return; }
-
-        try {
-            const checkSnap = await get(child(ref(db), `users/${phone}`));
-            if(checkSnap.exists()) { alert("এই নাম্বারে অলরেডি আইডি খোলা আছে!"); return; }
-
-            const userData = { role, name, phone, location: locationStr, pass };
-            if(role === 'Technician') {
-                userData.expertise = expertise;
-                userData.income = 0;
-                userData.doneCount = 0;
-                userData.status = 'Unverified';
-            }
-
-            await set(ref(db, `users/${phone}`), userData);
-            localStorage.setItem('loggedInUser', phone);
-            alert("অ্যাকাউন্ট তৈরি হয়েছে!");
-            location.reload();
-        } catch (err) { alert("Error: " + err.message); }
-    };
-
-    window.handleLogin = async () => {
-        const p = document.getElementById('loginPhone').value.trim();
-        const pw = document.getElementById('loginPass').value;
-        if(!p || !pw) { alert("সব তথ্য দিন!"); return; }
-        
-        const snap = await get(child(ref(db), `users/${p}`));
-        if (snap.exists() && snap.val().pass === pw) { 
-            localStorage.setItem('loggedInUser', p); 
-            location.reload(); 
-        } else { alert("ভুল নাম্বার বা পাসওয়ার্ড!"); }
-    };
-
-    window.handleAdminLogin = () => {
-        const u = document.getElementById('adminUser').value;
-        const p = document.getElementById('adminPass').value;
-        if(u === "fenitechfinder" && p === "azimtechfinderfeni00") { 
-            closeModal('adminLogin'); openModal('adminPanel'); loadAdminPanel(); 
-        } else { alert("ভুল ক্রেডেনশিয়াল!"); }
-    };
-
-    window.renderTechs = (techs) => {
-        const list = document.getElementById('techList'); 
-        if(!list) return;
-        list.innerHTML = "";
-        
-        if(!techs || techs.length === 0) { 
-            list.innerHTML = `<p class="text-slate-400 text-sm col-span-full text-center py-10">কোনো এক্সপার্ট পাওয়া যায়নি!</p>`; 
-            return; 
-        }
-        
-        techs.forEach(u => {
-            const v = u.status === 'Verified' ? '<i class="fas fa-check-circle verify-badge text-xs md:text-sm"></i>' : '';
-            list.innerHTML += `
-                <div class="tech-card">
-                    <div class="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                        <img src="${u.profilePic || 'https://via.placeholder.com/150'}" class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover">
-                        <div>
-                            <h4 class="font-black text-xs md:text-sm text-slate-800">${u.name || 'No Name'}${v}</h4>
-                            <span class="text-[8px] md:text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold uppercase block mt-0.5 w-max">${u.expertise || 'Expert'}</span>
-                        </div>
-                    </div>
-                    <div class="text-[10px] md:text-xs font-bold text-slate-500 mb-3 md:mb-4 truncate"><i class="fas fa-map-marker-alt text-red-400 mr-1"></i> ${u.location || 'Feni'}</div>
-                    <a href="tel:${OFFICIAL_COMPANY_NUMBER}" class="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-2.5 md:py-3 rounded-lg md:rounded-xl font-black text-[10px] md:text-xs shadow-md active:scale-95 transition"><i class="fas fa-phone-alt"></i> CALL NOW</a>
-                </div>`;
+        // ============================================
+        // ২. লগইন ও লগআউট
+        // ============================================
+        googleLoginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => alert("লগইন এরর: " + error.message));
         });
-    };
 
-    // 🛠️ স্মার্ট ফিল্টার: role 'Technician' হলে অথবা অ্যাকাউন্টে 'expertise' থাকলে সে টেকনিশিয়ান (পুরোনো আইডি সহ আসবে)
-    window.filterTech = (cat) => { 
-        const t = window.allUsers.filter(u => u.role === 'Technician' || (u.expertise && u.role !== 'Customer')); 
-        if(cat === 'All') { 
-            window.renderTechs(t); 
-        } else { 
-            const filtered = t.filter(u => u.expertise && u.expertise.toLowerCase().trim() === cat.toLowerCase().trim());
-            window.renderTechs(filtered); 
-        }
-    };
+        logoutBtn.addEventListener('click', () => auth.signOut());
 
-    // 🛠️ স্মার্ট সার্চ মডিফাইড
-    window.smartSearch = () => {
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const techs = window.allUsers.filter(u => u.role === 'Technician' || (u.expertise && u.role !== 'Customer'));
-        if(!query) { window.renderTechs(techs); return; }
-
-        const filtered = techs.filter(u => {
-            const nameMatch = u.name && u.name.toLowerCase().includes(query);
-            const expMatch = u.expertise && u.expertise.toLowerCase().includes(query);
-            const locMatch = u.location && u.location.toLowerCase().includes(query);
-            
-            const isKhotiyanQuery = (query.includes('khotiyan') || query.includes('খতিয়ান') || query.includes('লেখক')) && (u.expertise && u.expertise.toLowerCase().includes('khotiyan'));
-            const isAcQuery = (query.includes('ac') || query.includes('এসি')) && (u.expertise && u.expertise.toLowerCase().includes('ac'));
-            const isFridgeQuery = (query.includes('fridge') || query.includes('ফ্রিজ')) && (u.expertise && u.expertise.toLowerCase().includes('fridge'));
-            const isElectricQuery = (query.includes('electric') || query.includes('কারেন্ট')) && (u.expertise && u.expertise.toLowerCase().includes('electri'));
-            const isPlumberQuery = (query.includes('plumber') || query.includes('প্লাম্বার')) && (u.expertise && u.expertise.toLowerCase().includes('plumb'));
-            const isGasQuery = (query.includes('gas') || query.includes('চুলা')) && (u.expertise && u.expertise.toLowerCase().includes('gas'));
-            const isWashingQuery = (query.includes('washing') || query.includes('ওয়াশিং')) && (u.expertise && u.expertise.toLowerCase().includes('wash'));
-            const isFilterQuery = (query.includes('filter') || query.includes('ফিল্টার')) && (u.expertise && u.expertise.toLowerCase().includes('purif'));
-            const isGeneratorQuery = (query.includes('generator') || query.includes('জেনারেটর')) && (u.expertise && u.expertise.toLowerCase().includes('generat'));
-            const isVehicleQuery = (query.includes('car') || query.includes('bike') || query.includes('গাড়ি') || query.includes('বাইক')) && (u.expertise && u.expertise.toLowerCase().includes('car'));
-            const isIpsQuery = (query.includes('ips') || query.includes('আইপিএস')) && (u.expertise && u.expertise.toLowerCase().includes('ips'));
-            const isCctvQuery = (query.includes('camera') || query.includes('cctv')) && (u.expertise && u.expertise.toLowerCase().includes('cctv'));
-            const isApplianceQuery = (query.includes('tv') || query.includes('টিভি') || query.includes('oven')) && (u.expertise && u.expertise.toLowerCase().includes('applian'));
-            const isItQuery = (query.includes('it') || query.includes('computer') || query.includes('ওয়াইফাই')) && (u.expertise && u.expertise.toLowerCase().includes('it'));
-
-            return nameMatch || expMatch || locMatch || isKhotiyanQuery || isAcQuery || isFridgeQuery || isElectricQuery || isPlumberQuery || isGasQuery || isWashingQuery || isFilterQuery || isGeneratorQuery || isVehicleQuery || isIpsQuery || isCctvQuery || isApplianceQuery || isItQuery;
-        });
-        window.renderTechs(filtered);
-    };
-
-    // 🛠️ রিয়েলটাইম ডাটায় ফিক্স
-    onValue(ref(db, 'users'), (snapshot) => { 
-        const data = snapshot.val(); 
-        window.allUsers = data ? Object.keys(data).map(k => ({ phone: k, ...data[k] })) : [];
-        const techsList = window.allUsers.filter(u => u.role === 'Technician' || (u.expertise && u.role !== 'Customer'));
-        window.renderTechs(techsList); 
-
-        if(document.getElementById('adminPanelModal').classList.contains('modal-active')) loadAdminPanel();
-
-        const saved = localStorage.getItem('loggedInUser');
-        if (saved && data && data[saved]) {
-            window.currentUser = { phone: saved, ...data[saved] };
-            updateUIForLoggedInUser();
-        }
-    });
-
-    document.getElementById('searchInput').addEventListener('input', window.smartSearch);
-    document.getElementById('btnCatAll').addEventListener('click', () => window.filterTech('All'));
-    document.getElementById('btnCatKhotiyan').addEventListener('click', () => window.filterTech('Khotiyan Writer'));
-    document.getElementById('btnCatAC').addEventListener('click', () => window.filterTech('AC Mechanic'));
-    document.getElementById('btnCatFridge').addEventListener('click', () => window.filterTech('Fridge Expert'));
-    document.getElementById('btnCatElectric').addEventListener('click', () => window.filterTech('Electrician'));
-    document.getElementById('btnCatPlumber').addEventListener('click', () => window.filterTech('Plumber'));
-    document.getElementById('btnCatGas').addEventListener('click', () => window.filterTech('Gas & Stove'));
-    document.getElementById('btnCatWashing').addEventListener('click', () => window.filterTech('Washing Machine'));
-    document.getElementById('btnCatFilter').addEventListener('click', () => window.filterTech('Water Purifier'));
-    document.getElementById('btnCatGen').addEventListener('click', () => window.filterTech('Generator Tech'));
-    document.getElementById('btnCatVehicle').addEventListener('click', () => window.filterTech('Car & Bike'));
-    document.getElementById('btnCatIps').addEventListener('click', () => window.filterTech('IPS & Battery'));
-    document.getElementById('btnCatCctv').addEventListener('click', () => window.filterTech('CCTV Expert'));
-    document.getElementById('btnCatAppliance').addEventListener('click', () => window.filterTech('Home Appliance'));
-    document.getElementById('btnCatIt').addEventListener('click', () => window.filterTech('IT Technician'));
-
-    window.changeTechCategory = async (phone, newExpertise) => {
-        if(!newExpertise) return;
-        if(confirm("এই টেকনিশিয়ানের কাজের ক্যাটাগরি পরিবর্তন করতে চান?")) {
-            try {
-                // 🛠️ পরিবর্তন করার সাথে সাথে ডাটাবেজে যদি role না থাকে, তবে role: "Technician" ও সেট করে দেবে অটোমেটিক
-                await update(ref(db, `users/${phone}`), { expertise: newExpertise, role: "Technician" });
-                alert("ক্যাটাগরি সফলভাবে পরিবর্তন করা হয়েছে!");
-                loadAdminPanel();
-            } catch (err) {
-                alert("Error: " + err.message);
-            }
-        }
-    };
-
-    // 🛠️ অ্যাডমিন প্যানেল লোড লজিক আপডেট
-    window.loadAdminPanel = () => {
-        const techTbody = document.getElementById('adminTechList');
-        const custTbody = document.getElementById('adminCustList');
-        if(!techTbody || !custTbody) return;
-        techTbody.innerHTML = ""; custTbody.innerHTML = "";
-
-        const categories = [
-            { value: "Khotiyan Writer", text: "খতিয়ান লেখক" },
-            { value: "AC Mechanic", text: "এসি মেকানিক" },
-            { value: "Fridge Expert", text: "ফ্রিজ সার্ভিস" },
-            { value: "Electrician", text: "ইলেকট্রিশিয়ান" },
-            { value: "Plumber", text: "প্লাম্বার" },
-            { value: "Gas & Stove", text: "গ্যাস ও চুলা" },
-            { value: "Washing Machine", text: "ওয়াশিং মেশিন" },
-            { value: "Water Purifier", text: "পানি ফিল্টার" },
-            { value: "Generator Tech", text: "জেনারেটর" },
-            { value: "Car & Bike", text: "গাড়ি ও বাইক" },
-            { value: "IPS & Battery", text: "IPS & ব্যাটারি" },
-            { value: "CCTV Expert", text: "CCTV এক্সপার্ট" },
-            { value: "Home Appliance", text: "টিভি ও ওভেন" },
-            { value: "IT Technician", text: "আইটি সার্ভিস" }
-        ];
-
-        window.allUsers.forEach(u => {
-            if(!u.phone) return;
-            
-            // 🛠️ যাদের রোল Technician অথবা প্রোফাইলে expertise ডাটা আছে তারা মেকানিক লিস্টে যাবে
-            if(u.role === 'Technician' || (u.expertise && u.role !== 'Customer')) {
-                const docLink = u.vDoc ? `<a href="${u.vDoc}" target="_blank" class="text-blue-500 underline text-[10px] md:text-xs block">NID</a>` : '';
-                const selfLink = u.vSelfie ? `<a href="${u.vSelfie}" target="_blank" class="text-blue-500 underline text-[10px] md:text-xs block">Selfie</a>` : '';
-                const badge = u.status === 'Verified' ? `<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[10px]">Verified</span>` : (u.status === 'Pending' ? `<span class="bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded text-[10px]">Pending</span>` : `<span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">Unverified</span>`);
-
-                let optionsHtml = `<option value="">টাইপ পরিবর্তন করুন</option>`;
-                categories.forEach(cat => {
-                    const selected = (u.expertise === cat.value) ? 'selected' : '';
-                    optionsHtml += `<option value="${cat.value}" ${selected}>${cat.text}</option>`;
-                });
-
-                techTbody.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-2 md:p-4 flex items-center gap-2">
-                            <img src="${u.profilePic || 'https://via.placeholder.com/150'}" class="w-8 h-8 rounded-full object-cover">
-                            <div>
-                                <p class="font-black text-[10px] md:text-xs">${u.name || 'No Name'}</p>
-                                <p class="text-[8px] md:text-[10px] text-slate-400">PW: ${u.pass || 'N/A'}</p>
-                            </div>
-                        </td>
-                        <td class="p-2 md:p-4">
-                            <span class="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-black block mb-2 w-max">${u.expertise || 'Expert'}</span>
-                            <select onchange="window.changeTechCategory('${u.phone}', this.value)" class="text-[10px] bg-white border border-slate-300 rounded px-1 py-0.5 font-bold outline-none text-slate-700 focus:border-blue-500">
-                                ${optionsHtml}
-                            </select>
-                        </td>
-                        <td class="p-2 md:p-4"><a href="tel:${u.phone}" class="text-blue-600 hover:underline text-[10px] md:text-xs"><i class="fas fa-phone-alt mr-0.5"></i> ${u.phone}</a></td>
-                        <td class="p-2 md:p-4 space-y-0.5">${docLink}${selfLink}</td>
-                        <td class="p-2 md:p-4 text-center">
-                            <div class="mb-1">${badge}</div>
-                            ${u.status !== 'Verified' ? `<button onclick="approveExpert('${u.phone}')" class="bg-green-600 text-white px-2 py-0.5 rounded text-[9px] mr-1">Verify</button>` : ''}
-                            <button onclick="deleteUser('${u.phone}')" class="bg-red-500 text-white px-2 py-0.5 rounded text-[9px]"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loginScreen.classList.add('hidden');
+                chatScreen.classList.remove('hidden');
+                loadMessages();
+                updateUserProfile(user);
             } else {
-                // বাকি সবাই কাস্টমার টেবিলে যাবে
-                custTbody.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="p-2 md:p-4 font-black text-slate-800 text-xs md:text-sm">${u.name || 'Customer'}</td>
-                        <td class="p-2 md:p-4"><a href="tel:${u.phone}" class="text-green-600 hover:underline text-xs md:text-sm">${u.phone}</a></td>
-                        <td class="p-2 md:p-4 text-[10px] md:text-xs">${u.location || 'Not Set'}</td>
-                        <td class="p-2 md:p-4 text-center"><button onclick="deleteUser('${u.phone}')" class="bg-red-500 text-white px-2 py-1 rounded text-[10px]"><i class="fas fa-trash"></i> Delete</button></td>
-                    </tr>`;
+                loginScreen.classList.remove('hidden');
+                chatScreen.classList.add('hidden');
+                messagesContainer.innerHTML = '';
             }
         });
-    };
 
-    window.switchAdminTab = (type) => {
-        if(type === 'tech') {
-            document.getElementById('techTableContainer').classList.remove('hidden');
-            document.getElementById('custTableContainer').classList.add('hidden');
-            document.getElementById('tabTechBtn').className = "bg-blue-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm";
-            document.getElementById('tabCustBtn').className = "bg-slate-200 text-slate-700 px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm";
-        } else {
-            document.getElementById('techTableContainer').classList.add('hidden');
-            document.getElementById('custTableContainer').classList.remove('hidden');
-            document.getElementById('tabTechBtn').className = "bg-slate-200 text-slate-700 px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm";
-            document.getElementById('tabCustBtn').className = "bg-blue-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl font-bold text-xs md:text-sm";
+        // ইউজার ডাটাবেজে সেভ করা (প্রোফাইল)
+        async function updateUserProfile(user) {
+            const userRef = db.collection('users').doc(user.uid);
+            const doc = await userRef.get();
+            if (!doc.exists) {
+                await userRef.set({
+                    uid: user.uid,
+                    display_name: user.displayName,
+                    email: user.email,
+                    photo_url: user.photoURL,
+                    created_time: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
         }
-    };
 
-    window.approveExpert = async (phone) => { await update(ref(db, `users/${phone}`), { status: 'Verified' }); alert("Verified!"); loadAdminPanel(); };
-    window.deleteUser = async (phone) => { if(confirm("অ্যাকাউন্ট মুছে ফেলবেন?")) { await set(ref(db, `users/${phone}`), null); loadAdminPanel(); } };
+        // ============================================
+        // ৩. মেসেজ পাঠানো
+        // ============================================
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
 
-    function updateUIForLoggedInUser() {
-        document.getElementById('loggedOutUI').classList.add('hidden'); 
-        document.getElementById('loggedInUI').classList.remove('hidden'); 
-        document.getElementById('navProfileImg').src = window.currentUser.profilePic || "https://via.placeholder.com/150";
-        
-        const badge = document.getElementById('userRoleBadge');
-        const currentRole = window.currentUser.role || (window.currentUser.expertise ? 'Technician' : 'Customer');
-        badge.innerText = currentRole;
-        badge.className = currentRole === 'Technician' ? "hidden md:inline-block text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full bg-blue-100 text-blue-700" : "hidden md:inline-block text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full bg-purple-100 text-purple-700";
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text === '') return;
 
-        if(currentRole === 'Technician') {
-            document.getElementById('dashBtn').classList.remove('hidden');
-            document.getElementById('applyBtn').classList.remove('hidden');
+            const user = auth.currentUser;
+            try {
+                await db.collection('messages').add({
+                    text: text,
+                    senderId: user.uid,
+                    senderName: user.displayName,
+                    senderPhoto: user.photoURL,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                messageInput.value = '';
+            } catch (error) {
+                alert("মেসেজ পাঠাতে সমস্যা: " + error.message);
+            }
         }
-    }
 
-    window.loadAllData = () => {
-        const u = window.currentUser; if(!u) return;
-        document.getElementById('profileName').innerText = u.name || "No Name";
-        document.getElementById('profilePhone').innerText = u.phone;
-        document.getElementById('editLocation').value = u.location || "";
-        if(u.role === 'Technician' || u.expertise) {
-            document.getElementById('dashIncome').innerText = "৳ " + (u.income || 0);
-            document.getElementById('dashDone').innerText = u.doneCount || 0;
-            document.getElementById('dashStatus').innerText = u.status || "Unverified";
-            if(u.status === 'Verified') document.getElementById('verifyBadgeArea').innerHTML = '<i class="fas fa-check-circle verify-badge text-sm"></i>';
-            loadJobs();
+        // ============================================
+        // ৪. রিয়েল-টাইম মেসেজ লোড করা
+        // ============================================
+        function loadMessages() {
+            db.collection('messages')
+              .orderBy('timestamp', 'asc')
+              .limit(100)
+              .onSnapshot(snapshot => {
+                  messagesContainer.innerHTML = '';
+                  snapshot.forEach(doc => {
+                      const msg = doc.data();
+                      const isMe = msg.senderId === auth.currentUser.uid;
+                      
+                      // টাইম ফরম্যাট করা
+                      let timeString = '';
+                      if (msg.timestamp) {
+                          const date = msg.timestamp.toDate();
+                          timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      }
+
+                      const msgDiv = document.createElement('div');
+                      msgDiv.className = `flex gap-2 max-w-[85%] ${isMe ? 'self-end flex-row-reverse' : 'self-start'}`;
+                      
+                      // ইউজার অ্যাভাটার
+                      const avatar = document.createElement('img');
+                      avatar.src = msg.senderPhoto || 'https://ui-avatars.com/api/?name=' + msg.senderName;
+                      avatar.className = "w-8 h-8 rounded-full object-cover mt-1 shadow-sm";
+                      
+                      // মেসেজ বাবল
+                      const bubble = document.createElement('div');
+                      bubble.className = `p-3 rounded-2xl shadow-sm text-sm relative ${isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none border border-gray-100'}`;
+                      
+                      bubble.innerHTML = `
+                          ${!isMe ? `<div class="text-xs font-bold text-blue-600 mb-1">${msg.senderName}</div>` : ''}
+                          <div class="leading-relaxed">${msg.text}</div>
+                          <div class="text-[10px] text-right mt-1 ${isMe ? 'text-blue-200' : 'text-gray-400'}">${timeString}</div>
+                      `;
+
+                      msgDiv.appendChild(avatar);
+                      msgDiv.appendChild(bubble);
+                      messagesContainer.appendChild(msgDiv);
+                  });
+                  // অটো স্ক্রল নিচে
+                  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+              });
         }
-    };
-
-    window.saveProfileFull = async () => { 
-        await update(ref(db, `users/${window.currentUser.phone}`), { location: document.getElementById('editLocation').value, profilePic: document.getElementById('profileImg').src }); 
-        alert("Updated!"); closeModal('profile');
-    };
-
-    window.saveJob = async () => { 
-        const bill = parseInt(document.getElementById('jobBill').value); const p = window.currentUser.phone; 
-        await set(ref(db, `users/${p}/jobs/${Date.now()}`), { customer: document.getElementById('custName').value, type: document.getElementById('jobType').value, bill, date: new Date().toLocaleDateString() }); 
-        await update(ref(db, `users/${p}`), { income: (window.currentUser.income || 0) + bill, doneCount: (window.currentUser.doneCount || 0) + 1 }); 
-        document.getElementById('jobAddModal').classList.add('hidden'); loadAllData();
-    };
-
-    async function loadJobs() { 
-        const snap = await get(child(ref(db), `users/${window.currentUser.phone}/jobs`)); const list = document.getElementById('jobList'); list.innerHTML = ""; 
-        if(snap.exists()) { Object.values(snap.val()).reverse().forEach(j => { list.innerHTML += `<tr class="border-b text-[10px] md:text-xs"><td class="py-3 text-slate-400">${j.date}</td><td class="py-3 font-black">${j.customer}</td><td class="py-3 text-right text-blue-600">৳${j.bill}</td></tr>`; }); } 
-    }
-
-    window.submitVerify = async () => { 
-        await update(ref(db, `users/${window.currentUser.phone}`), { status: 'Pending', vDoc: document.getElementById('vNidPrev').src, vSelfie: document.getElementById('vSelfPrev').src }); 
-        alert("Submitted!"); document.getElementById('verifyModal').classList.add('hidden');
-    };
-
-    document.getElementById('profileFileInp').onchange = function() { previewImg(this, 'profileImg'); };
-    document.getElementById('nidFileInp').onchange = function() { previewImg(this, 'vNidPrev'); };
-    document.getElementById('selfieFileInp').onchange = function() { previewImg(this, 'vSelfPrev'); };
-
-    function previewImg(input, id) { const r = new FileReader(); r.onload = (e) => { const i = document.getElementById(id); i.src = e.target.result; i.classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); };
-    window.logout = () => { localStorage.clear(); location.reload(); };
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        const saved = localStorage.getItem('loggedInUser');
-        if (saved) {
-            const snapUser = await get(child(ref(db), `users/${saved}`));
-            if (snapUser.exists()) { window.currentUser = { phone: saved, ...snapUser.val() }; updateUIForLoggedInUser(); }
-        }
-    });
-</script>
+    </script>
 </body>
 </html>
