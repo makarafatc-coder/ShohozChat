@@ -2,81 +2,507 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ShohojChat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        
+        html, body {
+            height: 100%; margin: 0; padding: 0;
+            overflow: hidden;
+            background: #0a0f1c;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            overscroll-behavior: none;
+        }
+        
+        /* ============================================
+           FIXED LAYOUT — no flexbox centering issues
+           ============================================ */
+        #app {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            #app { padding: 16px; }
+        }
+        
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(19, 28, 46, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        @media (min-width: 768px) {
+            .screen {
+                position: relative;
+                inset: auto;
+                width: 100%;
+                max-width: 448px;
+                height: 92vh;
+                max-height: 800px;
+                border-radius: 24px;
+            }
+        }
+        
+        .screen.hidden { display: none !important; }
+        
+        /* ============================================
+           MESSAGES AREA — the critical part
+           ============================================ */
+        .messages-area {
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding: 14px 14px 20px 14px;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+            background-color: #0a0f1c;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.07) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.07) 0%, transparent 50%);
+        }
+        .messages-area::-webkit-scrollbar { width: 6px; }
+        .messages-area::-webkit-scrollbar-track { background: transparent; }
+        .messages-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        
+        .messages-area > *:first-child { margin-top: 0 !important; }
+        .messages-area > *:last-child { margin-bottom: 0 !important; }
+        
+        /* Header / Footer must not shrink */
+        .flex-shrink-0 { flex-shrink: 0; }
+        
+        /* ============================================
+           MESSAGE BUBBLES
+           ============================================ */
+        .msg-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 6px;
+            position: relative;
+        }
+        .msg-row.justify-end { justify-content: flex-end; }
+        .msg-row.justify-start { justify-content: flex-start; }
+        
+        .msg-wrap {
+            position: relative;
+            max-width: 82%;
+            cursor: pointer;
+            user-select: none;
+            touch-action: pan-y;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .bubble-me {
+            background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+        .bubble-other {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+        
+        /* ============================================
+           OTHER UI ELEMENTS
+           ============================================ */
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } }
+        .status-online { background: #22c55e; animation: pulse 2s infinite; }
+        .status-offline { background: #64748b; }
+        
+        @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+        .typing-dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; display: inline-block; animation: typingDot 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        .btn-press { transition: transform 0.1s; }
+        .btn-press:active { transform: scale(0.96); }
+        
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-anim { animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        .day-divider {
+            display: flex; align-items: center; gap: 12px;
+            color: #64748b; font-size: 12px; font-weight: 600;
+            margin: 12px 0 10px 0;
+        }
+        .day-divider::before, .day-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(to right, transparent, #334155, transparent);
+        }
+        
+        .scroll-btn { transition: all 0.3s; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4); }
+        .scroll-btn.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .scroll-btn.hide { opacity: 0; pointer-events: none; transform: translateY(10px); }
+        
+        .emoji-btn { font-size: 1.6rem; cursor: pointer; transition: transform 0.2s, background 0.2s; padding: 4px; border-radius: 8px; }
+        .emoji-btn:hover { transform: scale(1.3); background: rgba(255,255,255,0.05); }
+        
+        .chat-image { max-width: 100%; border-radius: 12px; cursor: pointer; display: block; }
+        
+        .view-once-box {
+            background: linear-gradient(135deg, #334155, #1e293b);
+            border: 1px dashed #64748b;
+            border-radius: 12px; padding: 16px 20px; text-align: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        
+        .input-focus:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
+        
+        .swipe-indicator {
+            position: absolute; left: 8px; top: 50%;
+            transform: translateY(-50%) scale(0.5);
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(100, 116, 139, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            color: #64748b; opacity: 0;
+            transition: opacity 0.15s, background 0.15s, transform 0.15s;
+            pointer-events: none;
+        }
+        .swipe-indicator.active { opacity: 1; transform: translateY(-50%) scale(1); }
+        .swipe-indicator.ready { background: rgba(34, 197, 94, 0.3); color: #22c55e; transform: translateY(-50%) scale(1.15); }
+        
+        .quoted-msg {
+            border-left: 3px solid; padding: 4px 8px; border-radius: 6px;
+            margin-bottom: 6px; font-size: 12px; cursor: pointer;
+        }
+        .quoted-me { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.5); color: rgba(255, 255, 255, 0.9); }
+        .quoted-other { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #94a3b8; }
+        
+        @keyframes replySlide { from { opacity: 0; max-height: 0; transform: translateY(10px); } to { opacity: 1; max-height: 100px; transform: translateY(0); } }
+        .reply-preview { animation: replySlide 0.2s ease-out; overflow: hidden; }
+        
+        @keyframes highlightMsg { 0%, 100% { background: transparent; } 50% { background: rgba(59, 130, 246, 0.25); } }
+        .highlight-target { animation: highlightMsg 1.5s ease-in-out; border-radius: 18px; }
+        
+        @keyframes reactionPopIn { from { opacity: 0; transform: scale(0.7) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .reaction-popup { animation: reactionPopIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: bottom center; }
+        
+        .reaction-emoji {
+            font-size: 1.7rem; padding: 4px 6px; border-radius: 50%;
+            cursor: pointer; transition: transform 0.2s, background 0.2s;
+            display: inline-flex; align-items: center; justify-content: center; line-height: 1;
+        }
+        .reaction-emoji:hover, .reaction-emoji:active { transform: scale(1.35) translateY(-3px); background: rgba(255,255,255,0.08); }
+        
+        .reaction-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            background: #1e293b; border: 1px solid #334155;
+            border-radius: 12px; padding: 2px 8px; font-size: 13px;
+            margin-top: -6px; margin-left: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .reaction-badge .count { font-size: 10px; font-weight: 700; color: #94a3b8; margin-left: 2px; }
+        
+        .settings-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; border-radius: 14px;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .settings-item:hover { background: rgba(255,255,255,0.04); }
+        .settings-item:active { background: rgba(255,255,255,0.08); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 h-screen flex items-center justify-center p-0 md:p-4">
+<body>
 
-    <!-- লগইন স্ক্রিন -->
-    <div id="loginScreen" class="bg-white p-8 rounded-2xl shadow-2xl text-center w-full max-w-sm mx-auto">
-        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-comments text-4xl text-blue-600"></i>
-        </div>
-        <h1 class="text-3xl font-bold mb-2 text-gray-800">ShohojChat</h1>
-        <p class="text-gray-500 mb-6">সহজে কথা বলুন, বন্ধুদের সাথে যুক্ত থাকুন</p>
-        <input type="email" id="emailInput" placeholder="আপনার ইমেইল" class="w-full bg-gray-100 border-0 rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-700">
-        <input type="password" id="passwordInput" placeholder="পাসওয়ার্ড" class="w-full bg-gray-100 border-0 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-700">
-        <button id="loginBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl w-full hover:bg-blue-700 transition duration-300 font-semibold shadow-lg mb-3">লগইন করুন</button>
-        <button id="signupBtn" class="bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-xl w-full hover:bg-blue-50 transition duration-300 font-semibold">নতুন অ্যাকাউন্ট খুলুন</button>
-        <p id="authMessage" class="text-sm text-red-500 mt-4"></p>
+<div id="app">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- ইনবক্স (চ্যাট লিস্ট) স্ক্রিন -->
-    <div id="inboxScreen" class="hidden bg-white w-full max-w-md h-full md:h-[90vh] flex flex-col rounded-none md:rounded-2xl shadow-2xl overflow-hidden relative">
-        <div class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-xl">ShohojChat</h2>
-            <button id="logoutBtn" class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    <!-- LOGIN -->
+    <div id="loginScreen" class="screen items-center justify-center p-4">
+        <div class="w-full max-w-sm p-8 rounded-3xl shadow-2xl text-center" style="background: rgba(19, 28, 46, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div class="bg-gradient-to-tr from-blue-500 to-purple-600 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform rotate-3">
+                <i class="fa-solid fa-comments text-5xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohojChat</h1>
+            <p class="text-gray-400 mb-8 text-sm">সহজে কথা বলুন, বন্ধুদের সাথে যুক্ত থাকুন</p>
+            <div class="relative mb-3">
+                <i class="fa-solid fa-envelope absolute left-4 top-4 text-gray-500"></i>
+                <input type="email" id="emailInput" placeholder="আপনার ইমেইল" class="input-focus w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none transition">
+            </div>
+            <div class="relative mb-5">
+                <i class="fa-solid fa-lock absolute left-4 top-4 text-gray-500"></i>
+                <input type="password" id="passwordInput" placeholder="পাসওয়ার্ড" class="input-focus w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none transition">
+            </div>
+            <button id="loginBtn" class="btn-press bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3.5 rounded-xl w-full hover:from-blue-500 hover:to-purple-500 transition duration-300 font-bold shadow-lg shadow-blue-500/30 mb-3">লগইন করুন</button>
+            <button id="signupBtn" class="btn-press bg-transparent text-blue-400 border border-blue-500/50 px-6 py-3.5 rounded-xl w-full hover:bg-blue-500/10 transition duration-300 font-semibold">নতুন অ্যাকাউন্ট খুলুন</button>
+            <p id="authMessage" class="text-sm text-red-400 mt-4 h-5"></p>
         </div>
-        
-        <!-- চ্যাট লিস্ট -->
-        <div id="chatList" class="flex-1 overflow-y-auto bg-gray-50 no-scrollbar">
-            <!-- চ্যাটগুলো এখানে লোড হবে -->
-            <p class="text-center text-gray-400 mt-10">কোনো চ্যাট নেই। নতুন চ্যাট শুরু করুন!</p>
-        </div>
-
-        <!-- নতুন চ্যাট বাটন (FAB) -->
-        <button id="newChatBtn" class="absolute bottom-6 right-6 bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg hover:bg-blue-700 transition flex items-center justify-center text-xl">
-            <i class="fa-solid fa-plus"></i>
-        </button>
     </div>
 
-    <!-- চ্যাট রুম স্ক্রিন -->
-    <div id="chatRoomScreen" class="hidden bg-white w-full max-w-md h-full md:h-[90vh] flex flex-col rounded-none md:rounded-2xl shadow-2xl overflow-hidden">
-        <div class="bg-blue-600 text-white p-4 flex items-center gap-3 shadow-md z-10">
-            <button id="backToInboxBtn" class="text-xl hover:text-blue-200"><i class="fa-solid fa-arrow-left"></i></button>
-            <div class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center font-bold" id="chatPartnerAvatar">?</div>
+    <!-- INBOX -->
+    <div id="inboxScreen" class="screen hidden">
+        <div class="p-5 flex justify-between items-center border-b border-slate-700/50 flex-shrink-0">
             <div>
-                <h2 class="font-bold text-lg leading-tight" id="chatPartnerName">চ্যাট লোড হচ্ছে...</h2>
-                <p class="text-xs text-blue-200">অনলাইন</p>
+                <h2 class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohojChat</h2>
+                <p class="text-xs text-gray-500 mt-0.5" id="welcomeText">স্বাগতম!</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="requestsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-yellow-500/20 text-yellow-400 w-10 h-10 rounded-xl transition border border-yellow-500/30 relative">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span id="requestsBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                </button>
+                <button id="settingsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-blue-500/20 text-blue-400 w-10 h-10 rounded-xl transition border border-blue-500/30"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+        <div class="p-3 border-b border-slate-700/50 flex-shrink-0">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-500 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="নাম দিয়ে বন্ধু খুঁজুন..." class="input-focus w-full bg-slate-800/50 border border-slate-700 rounded-full pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none transition text-sm">
+            </div>
+        </div>
+        <div id="chatList" class="messages-area" style="background: #0a0f1c;">
+            <div class="flex flex-col items-center justify-center h-full text-center px-8">
+                <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-comment-dots text-4xl text-slate-600"></i>
+                </div>
+                <p class="text-gray-400 font-semibold">কোনো চ্যাট নেই</p>
+                <p class="text-gray-600 text-sm mt-1">উপরে নাম দিয়ে বন্ধু খুঁজুন!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT ROOM -->
+    <div id="chatRoomScreen" class="screen hidden">
+        <div class="p-4 flex items-center gap-3 border-b border-slate-700/50 bg-slate-900/70 backdrop-blur-md flex-shrink-0" style="position: relative; z-index: 20;">
+            <button id="backToInboxBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="w-11 h-11 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden ring-2 ring-blue-500/30 flex-shrink-0" id="chatPartnerAvatar">?</div>
+            <div class="flex-1 min-w-0 cursor-pointer" id="chatHeaderInfo">
+                <h2 class="font-bold text-base leading-tight text-white truncate" id="chatPartnerName">লোড হচ্ছে...</h2>
+                <p class="text-xs text-green-400 flex items-center gap-1.5 mt-0.5" id="chatPartnerStatus">
+                    <span class="w-2 h-2 bg-green-500 rounded-full inline-block status-online"></span> অনলাইন
+                </p>
+            </div>
+            <button id="chatMenuBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+
+        <!-- Messages area -->
+        <div id="messagesContainer" class="messages-area"></div>
+        
+        <button id="scrollToBottomBtn" class="scroll-btn hide fixed bottom-24 right-4 w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 hover:bg-slate-700 transition z-30" style="display: flex;">
+            <i class="fa-solid fa-arrow-down"></i>
+        </button>
+
+        <div id="replyPreview" class="hidden reply-preview px-3 pt-3 bg-slate-900/80 backdrop-blur border-t border-slate-700/50 flex-shrink-0">
+            <div class="flex items-center gap-3 bg-slate-800/80 rounded-xl p-2 border-l-4 border-blue-500">
+                <i class="fa-solid fa-reply text-blue-400"></i>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-blue-400" id="replyPreviewName">নাম</p>
+                    <p class="text-xs text-gray-400 truncate" id="replyPreviewText">মেসেজ...</p>
+                </div>
+                <button id="cancelReplyBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400 flex-shrink-0"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </div>
 
-        <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-4 no-scrollbar"></div>
+        <div id="emojiPicker" class="hidden p-3 bg-slate-800/95 backdrop-blur border-t border-slate-700 flex flex-wrap gap-1 justify-center flex-shrink-0">
+            <span class="emoji-btn">😀</span><span class="emoji-btn">😂</span><span class="emoji-btn">🥰</span><span class="emoji-btn">😎</span><span class="emoji-btn">😭</span><span class="emoji-btn">😡</span><span class="emoji-btn">🤔</span><span class="emoji-btn">😴</span>
+            <span class="emoji-btn">👍</span><span class="emoji-btn">🙏</span><span class="emoji-btn">👏</span><span class="emoji-btn">💪</span><span class="emoji-btn">❤️</span><span class="emoji-btn">🔥</span><span class="emoji-btn">✨</span><span class="emoji-btn">💯</span>
+        </div>
 
-        <div class="p-3 border-t bg-white flex gap-2 items-center rounded-b-2xl">
-            <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." class="flex-1 bg-gray-100 border-0 rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-700">
-            <button id="sendBtn" class="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow-md">
-                <i class="fa-solid fa-paper-plane text-lg"></i>
+        <div class="p-3 border-t border-slate-700/50 bg-slate-900/70 backdrop-blur-md flex gap-2 items-end flex-shrink-0">
+            <input type="file" id="chatImageInput" accept="image/*" class="hidden">
+            <button id="chatImageBtn" class="btn-press text-gray-400 hover:text-blue-400 w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-image"></i>
+            </button>
+            <button id="emojiToggle" class="btn-press text-gray-400 hover:text-yellow-400 w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-regular fa-face-smile"></i>
+            </button>
+            <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." class="input-focus flex-1 min-w-0 bg-slate-800/70 border border-slate-700 rounded-3xl px-5 py-3 text-white placeholder-gray-500 focus:outline-none transition text-sm">
+            <button id="sendBtn" class="btn-press bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full hover:from-blue-500 hover:to-purple-500 transition flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
+                <i class="fa-solid fa-paper-plane text-base"></i>
             </button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- SETTINGS -->
+    <div id="settingsScreen" class="screen hidden">
+        <div class="p-4 flex items-center gap-3 border-b border-slate-700/50 flex-shrink-0">
+            <button id="backFromSettingsBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 class="font-bold text-xl text-white">সেটিংস</h2>
+        </div>
+        <div class="messages-area p-4" style="background: #0a0f1c;">
+            <div class="rounded-2xl p-4 mb-4 flex items-center gap-4" style="background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-blue-500/30 flex-shrink-0" id="settingsAvatar">
+                    <i class="fa-solid fa-user text-2xl text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-lg text-white truncate" id="settingsName">নাম</h3>
+                    <p class="text-xs text-gray-500 truncate" id="settingsEmail">email</p>
+                </div>
+                <button id="settingsEditProfileBtn" class="btn-press w-9 h-9 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-pen"></i></button>
+            </div>
 
-    <script>
-        // ============================================
-        // ১. আপনার Firebase Config এখানে বসান
-        // ============================================
-        const firebaseConfig = {
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">অ্যাকাউন্ট</p>
+            <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="settings-item" id="settingsProfileItem">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-user text-blue-400"></i></div>
+                    <div class="flex-1"><p class="text-white font-medium">প্রোফাইল সম্পাদনা</p><p class="text-xs text-gray-500">নাম ও ছবি পরিবর্তন</p></div>
+                    <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                </div>
+            </div>
+
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">চ্যাট</p>
+            <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="settings-item" id="settingsClearAllChats">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-trash text-red-400"></i></div>
+                    <div class="flex-1"><p class="text-white font-medium">সব চ্যাট মুছুন</p><p class="text-xs text-gray-500">সব মেসেজ ডিলিট হবে</p></div>
+                    <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                </div>
+                <div class="settings-item" id="settingsExportChats">
+                    <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-download text-green-400"></i></div>
+                    <div class="flex-1"><p class="text-white font-medium">চ্যাট ব্যাকআপ</p><p class="text-xs text-gray-500">সব চ্যাট ডাউনলোড</p></div>
+                    <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                </div>
+            </div>
+
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">অন্যান্য</p>
+            <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="settings-item" id="settingsAbout">
+                    <div class="w-10 h-10 rounded-xl bg-slate-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-circle-info text-slate-400"></i></div>
+                    <div class="flex-1"><p class="text-white font-medium">ShohojChat সম্পর্কে</p><p class="text-xs text-gray-500">ভার্সন 1.0</p></div>
+                    <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                </div>
+            </div>
+
+            <button id="settingsLogoutBtn" class="btn-press w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 py-3.5 rounded-2xl font-bold transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i> লগআউট করুন
+            </button>
+            <p class="text-center text-xs text-gray-600 mt-6 mb-4">ShohojChat v1.0 • Made with ❤️</p>
+        </div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div id="requestsScreen" class="screen hidden">
+        <div class="p-4 flex items-center gap-3 border-b border-slate-700/50 flex-shrink-0">
+            <button id="backFromRequestsBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 class="font-bold text-xl text-white">মেসেজ রিকোয়েস্ট</h2>
+        </div>
+        <div class="p-4 bg-yellow-500/10 border-b border-yellow-500/20 flex-shrink-0">
+            <p class="text-xs text-yellow-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>এখানে অপরিচিত মানুষের পাঠানো চ্যাট থাকে। Accept করলে চ্যাট শুরু হবে।</p>
+        </div>
+        <div id="requestsList" class="messages-area" style="background: #0a0f1c;">
+            <div class="flex flex-col items-center justify-center h-full text-center px-8">
+                <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-user-plus text-4xl text-slate-600"></i>
+                </div>
+                <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
+                <p class="text-gray-600 text-sm mt-1">নতুন চ্যাট রিকোয়েস্ট এখানে আসবে</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- REACTION POPUP -->
+    <div id="reactionPopup" class="hidden fixed z-50 reaction-popup">
+        <div class="rounded-2xl shadow-2xl p-2 flex flex-col gap-1.5" style="background: rgba(19, 28, 46, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="flex gap-1 justify-center px-1 pb-1.5 border-b border-slate-700/50">
+                <span class="reaction-emoji" data-emoji="👍">👍</span>
+                <span class="reaction-emoji" data-emoji="❤️">❤️</span>
+                <span class="reaction-emoji" data-emoji="😂">😂</span>
+                <span class="reaction-emoji" data-emoji="😮">😮</span>
+                <span class="reaction-emoji" data-emoji="😢">😢</span>
+                <span class="reaction-emoji" data-emoji="😡">😡</span>
+            </div>
+            <div class="flex flex-col min-w-[140px]">
+                <button id="popupReplyBtn" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-700/50 transition text-left text-sm"><i class="fa-solid fa-reply text-blue-400 w-4"></i><span>রিপ্লাই</span></button>
+                <button id="popupCopyBtn" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-700/50 transition text-left text-sm"><i class="fa-solid fa-copy text-green-400 w-4"></i><span>কপি</span></button>
+                <button id="popupDeleteBtn" class="hidden items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition text-left text-sm text-red-400"><i class="fa-solid fa-trash w-4"></i><span>ডিলিট</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT MENU POPUP -->
+    <div id="chatMenuPopup" class="hidden fixed z-50">
+        <div class="rounded-2xl shadow-2xl p-2 flex flex-col gap-1 min-w-[180px]" style="background: rgba(19, 28, 46, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);">
+            <button id="menuNicknameBtn" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-700/50 transition text-left text-sm"><i class="fa-solid fa-tag text-blue-400 w-4"></i><span>নিকনেম সেট</span></button>
+            <button id="menuClearChatBtn" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition text-left text-sm text-red-400"><i class="fa-solid fa-trash w-4"></i><span>চ্যাট ক্লিয়ার</span></button>
+        </div>
+    </div>
+
+    <!-- NICKNAME MODAL -->
+    <div id="nicknameModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm items-center justify-center z-50 p-4">
+        <div class="modal-anim p-6 rounded-3xl w-full max-w-sm shadow-2xl" style="background: rgba(19, 28, 46, 0.96); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">নিকনেম সেট করুন</h3>
+                <button id="closeNicknameBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
+                <p class="text-xs text-blue-300"><i class="fa-solid fa-circle-info mr-1"></i>এই নিকনেম আপনি <b>এবং আপনার বন্ধু</b> দুজনেই দেখবেন।</p>
+            </div>
+            <label class="block text-sm text-gray-400 mb-1.5">বন্ধুর আসল নাম</label>
+            <div class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-gray-400 text-sm" id="realNameDisplay">-</div>
+            <label class="block text-sm text-gray-400 mb-1.5">আপনি যা নামে ডাকতে চান</label>
+            <input type="text" id="nicknameInput" placeholder="যেমন: ভাইয়া, বেস্টি" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-5 text-white focus:outline-none transition">
+            <div class="flex gap-2">
+                <button id="saveNicknameBtn" class="btn-press flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold transition">সেভ করুন</button>
+                <button id="clearNicknameBtn" class="btn-press bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold transition"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profileModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm items-center justify-center z-50 p-4">
+        <div class="modal-anim p-6 rounded-3xl w-full max-w-sm shadow-2xl" style="background: rgba(19, 28, 46, 0.96); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">প্রোফাইল সেটিংস</h3>
+                <button id="closeProfileBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex flex-col items-center mb-5">
+                <div class="relative group cursor-pointer" id="avatarClickArea">
+                    <div class="w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden border-3 border-blue-500 ring-4 ring-blue-500/20 shadow-xl">
+                        <img id="modalAvatarPreview" src="" class="w-full h-full object-cover hidden">
+                        <i id="modalAvatarIcon" class="fa-solid fa-user text-4xl text-gray-500"></i>
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border-2 border-slate-800 shadow-lg group-hover:bg-blue-500 transition"><i class="fa-solid fa-camera text-xs text-white"></i></div>
+                </div>
+                <input type="file" id="avatarInput" accept="image/*" class="hidden">
+                <p class="text-xs text-gray-500 mt-3">ছবি পরিবর্তন করতে ক্লিক করুন</p>
+            </div>
+            <label class="block text-sm text-gray-400 mb-1.5">আপনার নাম</label>
+            <input type="text" id="profileNameInput" placeholder="নাম লিখুন" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-5 text-white focus:outline-none transition">
+            <div class="flex gap-2">
+                <button id="saveProfileBtn" class="btn-press flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold transition">সেভ করুন</button>
+                <button id="closeProfileBtn2" class="btn-press flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold transition">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /#app -->
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+    // ⚠️ আপনার ফায়ারবেস কনফিগ এখানে বসান
+    const firebaseConfig = {
   apiKey: "AIzaSyDVxS9IYesZFXQP92U_Flux2cAOTxN2rnU",
   authDomain: "shohojchat-53146.firebaseapp.com",
   projectId: "shohojchat-53146",
@@ -85,251 +511,1045 @@
   appId: "1:1033147841261:web:0bbd7bbcea219c33926ae4",
 };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    db.enablePersistence().catch((err) => console.log("Persistence: ", err.code));
 
-        // UI Elements
-        const loginScreen = document.getElementById('loginScreen');
-        const inboxScreen = document.getElementById('inboxScreen');
-        const chatRoomScreen = document.getElementById('chatRoomScreen');
-        const emailInput = document.getElementById('emailInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-        const authMessage = document.getElementById('authMessage');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const chatList = document.getElementById('chatList');
-        const newChatBtn = document.getElementById('newChatBtn');
-        const backToInboxBtn = document.getElementById('backToInboxBtn');
-        const chatPartnerName = document.getElementById('chatPartnerName');
-        const chatPartnerAvatar = document.getElementById('chatPartnerAvatar');
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
+    const $ = (id) => document.getElementById(id);
+    const loginScreen = $('loginScreen'), inboxScreen = $('inboxScreen'), chatRoomScreen = $('chatRoomScreen');
+    const settingsScreen = $('settingsScreen'), requestsScreen = $('requestsScreen');
+    const profileModal = $('profileModal'), nicknameModal = $('nicknameModal');
 
-        let currentUser = null;
-        let activeChatId = null;
-        let activeChatPartner = null;
-        let unsubscribeMessages = null;
+    let currentUser = null;
+    let activeChatId = null, activePartnerId = null;
+    let activeChatData = null, activePartnerData = null;
+    let unsubscribeMessages = null, unsubscribePartnerStatus = null, unsubscribeChatDoc = null, unsubscribeChatsList = null;
+    let userProfile = {};
+    let isOnline = navigator.onLine;
+    let typingTimeout = null;
+    let replyingTo = null, popupTarget = null;
+    let heartbeatInterval = null;
+    
+    // Scroll preservation
+    let wasAtBottom = true;
+    let savedScrollTop = 0;
+    let savedScrollHeight = 0;
 
-        // ============================================
-        // ২. লগইন, সাইনআপ ও লগআউট
-        // ============================================
-        loginBtn.addEventListener('click', () => {
-            authMessage.innerText = "লোড হচ্ছে...";
-            auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
-                .catch(error => authMessage.innerText = "ভুল: " + error.message);
-        });
+    // ============================================
+    // ONLINE / OFFLINE
+    // ============================================
+    window.addEventListener('online', () => { isOnline = true; markOnline(); });
+    window.addEventListener('offline', () => { isOnline = false; markOffline(); });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' && currentUser) markOffline();
+        else if (document.visibilityState === 'visible' && currentUser && isOnline) markOnline();
+    });
+    window.addEventListener('beforeunload', () => { if (currentUser) markOffline(); });
+    window.addEventListener('pagehide', () => { if (currentUser) markOffline(); });
 
-        signupBtn.addEventListener('click', () => {
-            if(passwordInput.value.length < 6) return authMessage.innerText = "পাসওয়ার্ড কমপক্ষে ৬ ডিজিটের হতে হবে";
-            authMessage.innerText = "অ্যাকাউন্ট তৈরি হচ্ছে...";
-            auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
-                .catch(error => authMessage.innerText = "ভুল: " + error.message);
-        });
-
-        logoutBtn.addEventListener('click', () => auth.signOut());
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                loginScreen.classList.add('hidden');
-                inboxScreen.classList.remove('hidden');
-                chatRoomScreen.classList.add('hidden');
-                saveUserProfile(user);
-                loadChatList();
-            } else {
-                currentUser = null;
-                loginScreen.classList.remove('hidden');
-                inboxScreen.classList.add('hidden');
-                chatRoomScreen.classList.add('hidden');
-                authMessage.innerText = '';
+    async function markOnline() {
+        if (!currentUser) return;
+        try { await db.collection('users').doc(currentUser.uid).update({ is_online: true, last_seen: firebase.firestore.FieldValue.serverTimestamp() }); } catch(e){}
+    }
+    async function markOffline() {
+        if (!currentUser) return;
+        try { await db.collection('users').doc(currentUser.uid).update({ is_online: false, last_seen: firebase.firestore.FieldValue.serverTimestamp() }); } catch(e){}
+    }
+    function startHeartbeat() {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        heartbeatInterval = setInterval(() => {
+            if (currentUser && isOnline && document.visibilityState === 'visible') {
+                db.collection('users').doc(currentUser.uid).update({ is_online: true, last_seen: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
             }
-        });
+        }, 30000);
+    }
 
-        async function saveUserProfile(user) {
-            const userRef = db.collection('users').doc(user.uid);
-            const doc = await userRef.get();
-            if (!doc.exists) {
-                await userRef.set({
-                    uid: user.uid,
-                    display_name: user.email.split('@')[0],
-                    email: user.email
-                });
-            }
+    function formatOfflineTime(date) {
+        const diff = Math.floor((new Date() - date) / 1000);
+        if (diff < 30) return 'এইমাত্র অফলাইন';
+        if (diff < 60) return `${diff} সেকেন্ড আগে`;
+        if (diff < 3600) return `${Math.floor(diff / 60)} মিনিট আগে`;
+        if (diff < 86400) {
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            return m > 0 ? `${h} ঘন্টা ${m} মিনিট আগে` : `${h} ঘন্টা আগে`;
         }
+        if (diff < 604800) return `${Math.floor(diff / 86400)} দিন আগে`;
+        return date.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' });
+    }
 
-        // ============================================
-        // ৩. চ্যাট লিস্ট লোড করা (ইনবক্স)
-        // ============================================
-        function loadChatList() {
-            db.collection('chats')
-              .where('participants', 'array-contains', currentUser.uid)
-              .orderBy('updated_at', 'desc')
-              .onSnapshot(snapshot => {
-                  chatList.innerHTML = '';
-                  if (snapshot.empty) {
-                      chatList.innerHTML = '<p class="text-center text-gray-400 mt-10">কোনো চ্যাট নেই। নতুন চ্যাট শুরু করুন!</p>';
-                      return;
-                  }
-                  snapshot.forEach(doc => {
-                      const chat = doc.data();
-                      const chatId = doc.id;
-                      // বন্ধুর নাম বের করা (যে ইউজার আমি না)
-                      const partnerId = chat.participants.find(id => id !== currentUser.uid);
-                      
-                      const chatDiv = document.createElement('div');
-                      chatDiv.className = "flex items-center gap-3 p-4 bg-white border-b hover:bg-gray-50 cursor-pointer transition";
-                      chatDiv.innerHTML = `
-                          <div class="w-12 h-12 bg-blue-200 text-blue-700 rounded-full flex items-center justify-center font-bold text-lg">${chat.partner_name ? chat.partner_name[0].toUpperCase() : '?'}</div>
-                          <div class="flex-1">
-                              <h3 class="font-bold text-gray-800">${chat.partner_name || 'Unknown'}</h3>
-                              <p class="text-sm text-gray-500 truncate">${chat.last_message || 'নতুন চ্যাট'}</p>
-                          </div>
-                          <div class="text-xs text-gray-400">${chat.updated_at ? chat.updated_at.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
-                      `;
-                      chatDiv.onclick = () => openChat(chatId, partnerId, chat.partner_name);
-                      chatList.appendChild(chatDiv);
-                  });
-              });
-        }
+    function escapeHtml(text) {
+        const d = document.createElement('div');
+        d.textContent = text || '';
+        return d.innerHTML;
+    }
+    function showToast(text) {
+        const t = document.createElement('div');
+        t.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-2xl z-[60]';
+        t.style.animation = 'modalIn 0.3s ease';
+        t.innerText = text;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
+    }
+    function showScreen(screen) {
+        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen].forEach(s => s.classList.add('hidden'));
+        screen.classList.remove('hidden');
+    }
 
-        // ============================================
-        // ৪. নতুন চ্যাট শুরু করা (বন্ধু অ্যাড)
-        // ============================================
-        newChatBtn.addEventListener('click', async () => {
-            const friendEmail = prompt("বন্ধুর ইমেইল দিন:").trim().toLowerCase();
-            if (!friendEmail) return;
-            if (friendEmail === currentUser.email) return alert("নিজের সাথে চ্যাট করা যাবে না!");
-
-            // ইমেইল দিয়ে বন্ধুকে খোঁজা
-            const usersRef = db.collection('users');
-            const snapshot = await usersRef.where('email', '==', friendEmail).get();
-
-            if (snapshot.empty) return alert("এই ইমেইলে কোনো ইউজার পাওয়া যায়নি!");
-            
-            const friendDoc = snapshot.docs[0];
-            const friendData = friendDoc.data();
-            const friendId = friendData.uid;
-
-            // চেক করা আগে থেকেই চ্যাট আছে কি না
-            const existingChat = await db.collection('chats')
-                .where('participants', 'array-contains', currentUser.uid)
-                .get();
-            
-            let chatExists = false;
-            let existingChatId = null;
-            existingChat.forEach(doc => {
-                const p = doc.data().participants;
-                if (p.includes(friendId)) {
-                    chatExists = true;
-                    existingChatId = doc.id;
-                }
+    // ============================================
+    // AUTH
+    // ============================================
+    $('loginBtn').addEventListener('click', () => {
+        $('authMessage').innerText = "লোড হচ্ছে...";
+        auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value)
+            .catch(error => {
+                const m = { 'auth/wrong-password': 'পাসওয়ার্ড ভুল', 'auth/user-not-found': 'এই ইমেইলে অ্যাকাউন্ট নেই', 'auth/invalid-email': 'ইমেইল সঠিক নয়', 'auth/too-many-requests': 'অনেকবার চেষ্টা, একটু পর করুন' };
+                $('authMessage').innerText = m[error.code] || error.message;
             });
+    });
 
-            if (chatExists) {
-                openChat(existingChatId, friendId, friendData.display_name);
-            } else {
-                // নতুন চ্যাট তৈরি করা
-                const newChatRef = await db.collection('chats').add({
-                    participants: [currentUser.uid, friendId],
-                    partner_name: friendData.display_name, // সহজে দেখানোর জন্য
-                    last_message: '',
-                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                openChat(newChatRef.id, friendId, friendData.display_name);
+    $('signupBtn').addEventListener('click', () => {
+        if($('passwordInput').value.length < 6) return $('authMessage').innerText = "পাসওয়ার্ড কমপক্ষে ৬ ডিজিট";
+        $('authMessage').innerText = "অ্যাকাউন্ট তৈরি হচ্ছে...";
+        auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value)
+            .then(uc => db.collection('users').doc(uc.user.uid).set({
+                uid: uc.user.uid,
+                display_name: $('emailInput').value.split('@')[0],
+                email: $('emailInput').value,
+                photo_url: "",
+                is_online: true,
+                last_seen: firebase.firestore.FieldValue.serverTimestamp(),
+                created_time: firebase.firestore.FieldValue.serverTimestamp()
+            }))
+            .catch(error => {
+                const m = { 'auth/email-already-in-use': 'এই ইমেইলে অ্যাকাউন্ট আছে', 'auth/invalid-email': 'ইমেইল সঠিক নয়', 'auth/weak-password': 'পাসওয়ার্ড দুর্বল' };
+                $('authMessage').innerText = m[error.code] || error.message;
+            });
+    });
+
+    function logout() {
+        if (currentUser) markOffline();
+        auth.signOut();
+    }
+
+    auth.onAuthStateChanged(async user => {
+        if (user) {
+            currentUser = user;
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                userProfile = doc.data();
+                $('welcomeText').innerText = `স্বাগতম, ${userProfile.display_name}!`;
+                await markOnline();
+                startHeartbeat();
             }
-        });
-
-        // ============================================
-        // ৫. চ্যাট রুম খোলা ও মেসেজ লোড করা
-        // ============================================
-        function openChat(chatId, partnerId, partnerName) {
-            activeChatId = chatId;
-            activeChatPartner = { id: partnerId, name: partnerName };
-            
-            inboxScreen.classList.add('hidden');
-            chatRoomScreen.classList.remove('hidden');
-            chatPartnerName.innerText = partnerName;
-            chatPartnerAvatar.innerText = partnerName ? partnerName[0].toUpperCase() : '?';
-            
-            loadMessages(chatId);
+            showScreen(inboxScreen);
+            loadChatList();
+            setupRequestsListener();
+        } else {
+            currentUser = null;
+            showScreen(loginScreen);
+            $('authMessage').innerText = '';
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
         }
+    });
 
-        backToInboxBtn.addEventListener('click', () => {
-            if (unsubscribeMessages) unsubscribeMessages(); // লিসেনার বন্ধ করা
-            chatRoomScreen.classList.add('hidden');
-            inboxScreen.classList.remove('hidden');
-            activeChatId = null;
-            activeChatPartner = null;
+    // ============================================
+    // PROFILE
+    // ============================================
+    function openProfileModal() {
+        $('profileNameInput').value = userProfile.display_name || "";
+        if (userProfile.photo_url) {
+            $('modalAvatarPreview').src = userProfile.photo_url;
+            $('modalAvatarPreview').classList.remove('hidden');
+            $('modalAvatarIcon').classList.add('hidden');
+        } else {
+            $('modalAvatarPreview').classList.add('hidden');
+            $('modalAvatarIcon').classList.remove('hidden');
+        }
+        profileModal.classList.remove('hidden');
+        profileModal.classList.add('flex');
+    }
+    function closeProfileModal() { profileModal.classList.add('hidden'); profileModal.classList.remove('flex'); }
+
+    $('closeProfileBtn').addEventListener('click', closeProfileModal);
+    $('closeProfileBtn2').addEventListener('click', closeProfileModal);
+    $('avatarClickArea').addEventListener('click', () => $('avatarInput').click());
+    $('settingsEditProfileBtn').addEventListener('click', openProfileModal);
+    $('settingsProfileItem').addEventListener('click', openProfileModal);
+
+    $('avatarInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    const max = 200;
+                    if (w > h) { if (w > max) { h *= max / w; w = max; } }
+                    else { if (h > max) { w *= max / h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    $('modalAvatarPreview').src = canvas.toDataURL('image/jpeg', 0.7);
+                    $('modalAvatarPreview').classList.remove('hidden');
+                    $('modalAvatarIcon').classList.add('hidden');
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    $('saveProfileBtn').addEventListener('click', async () => {
+        const newName = $('profileNameInput').value.trim();
+        if (!newName) return alert("নাম খালি রাখা যাবে না!");
+        $('saveProfileBtn').innerText = "সেভ হচ্ছে...";
+        $('saveProfileBtn').disabled = true;
+        let newPhotoUrl = userProfile.photo_url || "";
+        if ($('modalAvatarPreview').src && $('modalAvatarPreview').src.startsWith('data:image')) newPhotoUrl = $('modalAvatarPreview').src;
+        await db.collection('users').doc(currentUser.uid).update({ display_name: newName, photo_url: newPhotoUrl });
+        userProfile.display_name = newName;
+        userProfile.photo_url = newPhotoUrl;
+        $('welcomeText').innerText = `স্বাগতম, ${newName}!`;
+        $('saveProfileBtn').innerText = "সেভ করুন";
+        $('saveProfileBtn').disabled = false;
+        closeProfileModal();
+        updateSettingsUI();
+    });
+
+    function updateSettingsUI() {
+        $('settingsName').innerText = userProfile.display_name || 'নাম';
+        $('settingsEmail').innerText = userProfile.email || '';
+        if (userProfile.photo_url) {
+            $('settingsAvatar').innerHTML = `<img src="${userProfile.photo_url}" class="w-full h-full object-cover">`;
+        }
+    }
+
+    // ============================================
+    // NICKNAME
+    // ============================================
+    function getNicknameForUser(chat, userId) {
+        if (chat && chat.nicknames && chat.nicknames[userId]) return chat.nicknames[userId];
+        return null;
+    }
+    function openNicknameModal() {
+        if (!activeChatData) return;
+        $('realNameDisplay').innerText = activePartnerData ? activePartnerData.display_name : '-';
+        $('nicknameInput').value = getNicknameForUser(activeChatData, activePartnerId) || '';
+        nicknameModal.classList.remove('hidden');
+        nicknameModal.classList.add('flex');
+        setTimeout(() => $('nicknameInput').focus(), 100);
+    }
+    function closeNicknameModal() { nicknameModal.classList.add('hidden'); nicknameModal.classList.remove('flex'); }
+    $('closeNicknameBtn').addEventListener('click', closeNicknameModal);
+
+    $('saveNicknameBtn').addEventListener('click', async () => {
+        const n = $('nicknameInput').value.trim();
+        if (!n) return alert("নিকনেম খালি রাখা যাবে না!");
+        await db.collection('chats').doc(activeChatId).update({ [`nicknames.${activePartnerId}`]: n });
+        showToast('নিকনেম সেভ হয়েছে!');
+        closeNicknameModal();
+    });
+    $('clearNicknameBtn').addEventListener('click', async () => {
+        await db.collection('chats').doc(activeChatId).update({ [`nicknames.${activePartnerId}`]: firebase.firestore.FieldValue.delete() });
+        showToast('নিকনেম রিসেট হয়েছে');
+        closeNicknameModal();
+    });
+
+    // ============================================
+    // SEARCH
+    // ============================================
+    $('searchInput').addEventListener('input', async (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        if (q.length < 2) { loadChatList(); return; }
+        $('chatList').innerHTML = '<p class="text-center text-gray-400 mt-6 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i>খোঁজা হচ্ছে...</p>';
+        const snap = await db.collection('users').get();
+        const results = [];
+        snap.forEach(doc => {
+            const u = doc.data();
+            if (u.uid !== currentUser.uid && u.display_name.toLowerCase().includes(q)) results.push(u);
         });
+        if (results.length === 0) {
+            $('chatList').innerHTML = '<div class="flex flex-col items-center justify-center mt-10"><i class="fa-solid fa-user-slash text-3xl text-slate-600 mb-3"></i><p class="text-gray-500 text-sm">কোনো ইউজার পাওয়া যায়নি</p></div>';
+            return;
+        }
+        $('chatList').innerHTML = '';
+        results.forEach(u => {
+            const div = document.createElement('div');
+            div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30 hover:bg-slate-800/50 cursor-pointer transition active:bg-slate-700/50";
+            div.innerHTML = `
+                <div class="w-12 h-12 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg overflow-hidden shadow-lg flex-shrink-0">
+                    ${u.photo_url ? `<img src="${u.photo_url}" class="w-full h-full object-cover">` : u.display_name[0].toUpperCase()}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-white truncate">${escapeHtml(u.display_name)}</h3>
+                    <p class="text-xs text-gray-500">চ্যাট শুরু করতে ক্লিক করুন</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-600 flex-shrink-0"></i>
+            `;
+            div.onclick = () => startChat(u);
+            $('chatList').appendChild(div);
+        });
+    });
 
-        function loadMessages(chatId) {
-            if (unsubscribeMessages) unsubscribeMessages();
-
-            unsubscribeMessages = db.collection('chats').doc(chatId).collection('messages')
-              .orderBy('timestamp', 'asc')
-              .limit(100)
-              .onSnapshot(snapshot => {
-                  messagesContainer.innerHTML = '';
-                  snapshot.forEach(doc => {
-                      const msg = doc.data();
-                      const isMe = msg.senderId === currentUser.uid;
-                      let timeString = '';
-                      if (msg.timestamp) {
-                          timeString = msg.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                      }
-                      const msgDiv = document.createElement('div');
-                      msgDiv.className = `flex gap-2 max-w-[85%] ${isMe ? 'self-end flex-row-reverse' : 'self-start'}`;
-                      
-                      const avatar = document.createElement('div');
-                      avatar.className = "w-8 h-8 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center font-bold text-xs mt-1";
-                      avatar.innerText = (msg.senderName || 'U')[0].toUpperCase();
-
-                      const bubble = document.createElement('div');
-                      bubble.className = `p-3 rounded-2xl shadow-sm text-sm relative ${isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none border border-gray-100'}`;
-                      bubble.innerHTML = `
-                          ${!isMe ? `<div class="text-xs font-bold text-blue-600 mb-1">${msg.senderName}</div>` : ''}
-                          <div class="leading-relaxed">${msg.text}</div>
-                          <div class="text-[10px] text-right mt-1 ${isMe ? 'text-blue-200' : 'text-gray-400'}">${timeString}</div>
-                      `;
-                      msgDiv.appendChild(avatar);
-                      msgDiv.appendChild(bubble);
-                      messagesContainer.appendChild(msgDiv);
-                  });
-                  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // ============================================
+    // CHAT LIST
+    // ============================================
+    function loadChatList() {
+        if (unsubscribeChatsList) unsubscribeChatsList();
+        unsubscribeChatsList = db.collection('chats')
+          .where('participants', 'array-contains', currentUser.uid)
+          .onSnapshot(snapshot => {
+              const list = $('chatList');
+              const acceptedChats = [];
+              snapshot.forEach(doc => {
+                  const data = doc.data();
+                  if (data.status === 'pending') return;
+                  acceptedChats.push({ id: doc.id, data });
               });
+              
+              // Sort by updated_at
+              acceptedChats.sort((a, b) => {
+                  const at = a.data.updated_at ? a.data.updated_at.toMillis() : 0;
+                  const bt = b.data.updated_at ? b.data.updated_at.toMillis() : 0;
+                  return bt - at;
+              });
+              
+              list.innerHTML = '';
+              if (acceptedChats.length === 0) {
+                  list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
+                      <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                          <i class="fa-solid fa-comment-dots text-4xl text-slate-600"></i>
+                      </div>
+                      <p class="text-gray-400 font-semibold">কোনো চ্যাট নেই</p>
+                      <p class="text-gray-600 text-sm mt-1">উপরে নাম দিয়ে বন্ধু খুঁজুন!</p>
+                  </div>`;
+                  return;
+              }
+              acceptedChats.forEach(({ id: chatId, data: chat }) => {
+                  const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                  const nickname = getNicknameForUser(chat, partnerId);
+                  const hasNickname = !!nickname;
+                  const div = document.createElement('div');
+                  div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30 hover:bg-slate-800/50 cursor-pointer transition active:bg-slate-700/50";
+                  div.dataset.chatId = chatId;
+                  div.innerHTML = `
+                      <div class="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center font-bold text-blue-400 text-lg overflow-hidden relative shadow-lg flex-shrink-0" id="avatar-${chatId}">
+                          <span class="avatar-initial">${nickname ? nickname[0].toUpperCase() : '?'}</span>
+                          <span id="status-dot-${chatId}" class="absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full"></span>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                          <h3 class="font-bold text-white truncate flex items-center gap-1" id="name-${chatId}">
+                              <span class="partner-name">${escapeHtml(nickname || 'লোড হচ্ছে...')}</span>
+                              ${hasNickname ? '<i class="fa-solid fa-tag text-[10px] text-blue-400 flex-shrink-0"></i>' : ''}
+                          </h3>
+                          <p class="text-xs text-gray-500 truncate mt-0.5">${escapeHtml(chat.last_message || 'নতুন চ্যাট')}</p>
+                      </div>
+                      <div class="text-xs text-gray-600 flex-shrink-0">${chat.updated_at ? formatListTime(chat.updated_at.toDate()) : ''}</div>
+                  `;
+                  div.onclick = () => openChat(chatId, partnerId);
+                  list.appendChild(div);
+                  
+                  db.collection('users').doc(partnerId).onSnapshot(ud => {
+                      if (!ud.exists) return;
+                      const u = ud.data();
+                      const av = document.getElementById(`avatar-${chatId}`);
+                      if (av) {
+                          const init = av.querySelector('.avatar-initial');
+                          if (u.photo_url) {
+                              let img = av.querySelector('img');
+                              if (!img) {
+                                  img = document.createElement('img');
+                                  img.className = 'w-full h-full object-cover';
+                                  av.insertBefore(img, av.firstChild);
+                                  if (init) init.style.display = 'none';
+                              }
+                              img.src = u.photo_url;
+                          } else if (init) {
+                              init.style.display = '';
+                              init.textContent = (nickname || u.display_name || '?')[0].toUpperCase();
+                          }
+                      }
+                      const dot = document.getElementById(`status-dot-${chatId}`);
+                      if (dot) dot.className = u.is_online
+                          ? "absolute bottom-0 right-0 w-3.5 h-3.5 status-online border-2 border-slate-900 rounded-full"
+                          : "absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full";
+                      if (!nickname) {
+                          const n = document.getElementById(`name-${chatId}`);
+                          if (n) {
+                              const ns = n.querySelector('.partner-name');
+                              if (ns) ns.textContent = u.display_name || 'Unknown';
+                          }
+                      }
+                  });
+              });
+          });
+    }
+
+    function formatListTime(date) {
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);
+        if (diff < 60) return 'এখন';
+        if (diff < 3600) return `${Math.floor(diff/60)}মি`;
+        if (diff < 86400) return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        if (diff < 604800) return `${Math.floor(diff/86400)}দি`;
+        return date.toLocaleDateString([], {month: 'short', day: 'numeric'});
+    }
+
+    // ============================================
+    // MESSAGE REQUESTS
+    // ============================================
+    function setupRequestsListener() {
+        db.collection('chats')
+          .where('participants', 'array-contains', currentUser.uid)
+          .onSnapshot(snapshot => {
+              let pending = 0;
+              snapshot.forEach(doc => {
+                  const d = doc.data();
+                  if (d.status === 'pending' && d.initiator !== currentUser.uid) pending++;
+              });
+              const badge = $('requestsBadge');
+              if (pending > 0) { badge.innerText = pending; badge.classList.remove('hidden'); }
+              else badge.classList.add('hidden');
+          });
+    }
+
+    function loadRequestsList() {
+        const list = $('requestsList');
+        db.collection('chats')
+          .where('participants', 'array-contains', currentUser.uid)
+          .where('status', '==', 'pending')
+          .onSnapshot(async snapshot => {
+              list.innerHTML = '';
+              const pending = [];
+              snapshot.forEach(doc => {
+                  const d = doc.data();
+                  if (d.initiator !== currentUser.uid) pending.push({ id: doc.id, data: d });
+              });
+              if (pending.length === 0) {
+                  list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
+                      <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                          <i class="fa-solid fa-user-plus text-4xl text-slate-600"></i>
+                      </div>
+                      <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
+                      <p class="text-gray-600 text-sm mt-1">নতুন চ্যাট রিকোয়েস্ট এখানে আসবে</p>
+                  </div>`;
+                  return;
+              }
+              for (const { id: chatId, data: chat } of pending) {
+                  const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                  const uDoc = await db.collection('users').doc(partnerId).get();
+                  const u = uDoc.exists ? uDoc.data() : { display_name: 'Unknown', photo_url: '' };
+                  const div = document.createElement('div');
+                  div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30";
+                  div.innerHTML = `
+                      <div class="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center font-bold text-blue-400 text-lg overflow-hidden shadow-lg flex-shrink-0">
+                          ${u.photo_url ? `<img src="${u.photo_url}" class="w-full h-full object-cover">` : (u.display_name || '?')[0].toUpperCase()}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                          <h3 class="font-bold text-white truncate">${escapeHtml(u.display_name)}</h3>
+                          <p class="text-xs text-gray-500 truncate">${escapeHtml(chat.last_message || 'চ্যাট শুরু করতে চায়')}</p>
+                      </div>
+                      <div class="flex gap-1 flex-shrink-0">
+                          <button class="req-accept btn-press bg-green-500/20 text-green-400 border border-green-500/30 w-9 h-9 rounded-full flex items-center justify-center" data-chat="${chatId}"><i class="fa-solid fa-check"></i></button>
+                          <button class="req-reject btn-press bg-red-500/20 text-red-400 border border-red-500/30 w-9 h-9 rounded-full flex items-center justify-center" data-chat="${chatId}"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                  `;
+                  list.appendChild(div);
+              }
+              list.querySelectorAll('.req-accept').forEach(btn => {
+                  btn.addEventListener('click', async (e) => {
+                      e.stopPropagation();
+                      await db.collection('chats').doc(btn.dataset.chat).update({ status: 'accepted' });
+                      showToast('চ্যাট Accept হয়েছে!');
+                  });
+              });
+              list.querySelectorAll('.req-reject').forEach(btn => {
+                  btn.addEventListener('click', async (e) => {
+                      e.stopPropagation();
+                      if (!confirm('রিকোয়েস্ট ডিলিট করবেন?')) return;
+                      await db.collection('chats').doc(btn.dataset.chat).delete();
+                      showToast('রিকোয়েস্ট ডিলিট হয়েছে');
+                  });
+              });
+          });
+    }
+
+    // ============================================
+    // START CHAT
+    // ============================================
+    async function startChat(friend) {
+        const existing = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
+        let chatExists = false, existingId = null;
+        existing.forEach(doc => {
+            if (doc.data().participants.includes(friend.uid)) { chatExists = true; existingId = doc.id; }
+        });
+        if (chatExists) {
+            openChat(existingId, friend.uid);
+        } else {
+            const ref = await db.collection('chats').add({
+                participants: [currentUser.uid, friend.uid],
+                initiator: currentUser.uid,
+                status: 'accepted',
+                last_message: '',
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            openChat(ref.id, friend.uid);
         }
+    }
 
-        // ============================================
-        // ৬. মেসেজ পাঠানো
-        // ============================================
-        sendBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-
-        async function sendMessage() {
-            const text = messageInput.value.trim();
-            if (text === '' || !activeChatId) return;
+    // ============================================
+    // OPEN CHAT
+    // ============================================
+    function openChat(chatId, partnerId) {
+        activeChatId = chatId;
+        activePartnerId = partnerId;
+        cancelReply(); hideReactionPopup();
+        showScreen(chatRoomScreen);
+        // Reset scroll state
+        wasAtBottom = true;
+        $('messagesContainer').dataset.loaded = '';
+        
+        if (unsubscribePartnerStatus) unsubscribePartnerStatus();
+        unsubscribePartnerStatus = db.collection('users').doc(partnerId).onSnapshot(doc => {
+            if (!doc.exists) return;
+            activePartnerData = doc.data();
+            const u = activePartnerData;
+            if (u.photo_url) $('chatPartnerAvatar').innerHTML = `<img src="${u.photo_url}" class="w-full h-full object-cover">`;
+            else $('chatPartnerAvatar').innerText = u.display_name ? u.display_name[0].toUpperCase() : '?';
             
-            try {
-                // চ্যাটের ভেতরে মেসেজ যোগ করা
-                await db.collection('chats').doc(activeChatId).collection('messages').add({
-                    text: text,
-                    senderId: currentUser.uid,
-                    senderName: currentUser.email.split('@')[0],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+            let st = "অফলাইন", dc = "status-offline";
+            if (u.is_online) { st = "অনলাইন"; dc = "status-online"; }
+            else if (u.last_seen) st = formatOfflineTime(u.last_seen.toDate());
+            $('chatPartnerStatus').innerHTML = `<span class="w-2 h-2 ${dc} rounded-full inline-block"></span> ${st}`;
+            updateHeaderName();
+        });
+        
+        if (unsubscribeChatDoc) unsubscribeChatDoc();
+        unsubscribeChatDoc = db.collection('chats').doc(chatId).onSnapshot(doc => {
+            if (doc.exists) { activeChatData = doc.data(); updateHeaderName(); }
+        });
+        
+        loadMessages(chatId);
+    }
 
-                // চ্যাট লিস্টে সর্বশেষ মেসেজ আপডেট করা
-                await db.collection('chats').doc(activeChatId).update({
-                    last_message: text,
-                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    function updateHeaderName() {
+        if (!activeChatData || !activePartnerId) return;
+        const nick = getNicknameForUser(activeChatData, activePartnerId);
+        const real = activePartnerData ? activePartnerData.display_name : '';
+        const display = nick || real || 'Unknown';
+        $('chatPartnerName').innerHTML = `${escapeHtml(display)}${nick ? '<i class="fa-solid fa-tag text-[10px] text-blue-400 ml-1"></i>' : ''}`;
+    }
 
-                messageInput.value = '';
-            } catch (error) { alert("মেসেজ পাঠাতে সমস্যা: " + error.message); }
+    $('backToInboxBtn').addEventListener('click', () => {
+        if (unsubscribeMessages) unsubscribeMessages();
+        if (unsubscribePartnerStatus) unsubscribePartnerStatus();
+        if (unsubscribeChatDoc) unsubscribeChatDoc();
+        if (activeChatId) db.collection('chats').doc(activeChatId).update({ typing: firebase.firestore.FieldValue.delete() }).catch(()=>{});
+        cancelReply(); hideReactionPopup();
+        showScreen(inboxScreen);
+        $('searchInput').value = '';
+        loadChatList();
+    });
+
+    // ============================================
+    // LOAD MESSAGES — with scroll preservation
+    // ============================================
+    function loadMessages(chatId) {
+        if (unsubscribeMessages) unsubscribeMessages();
+        unsubscribeMessages = db.collection('chats').doc(chatId).collection('messages')
+          .orderBy('timestamp', 'asc').limit(100)
+          .onSnapshot(snapshot => {
+              const container = $('messagesContainer');
+              
+              // Save scroll state BEFORE re-render
+              const prevScrollHeight = container.scrollHeight;
+              const prevScrollTop = container.scrollTop;
+              const isFirstLoad = (container.dataset.loaded !== chatId);
+              const nearBottom = prevScrollHeight - prevScrollTop - container.clientHeight < 150;
+              
+              container.innerHTML = '';
+              let prevDate = null;
+              
+              snapshot.forEach(doc => {
+                  const msg = doc.data();
+                  const msgId = doc.id;
+                  const isMe = msg.senderId === currentUser.uid;
+                  const msgType = msg.type || 'text';
+                  
+                  if (msg.timestamp) {
+                      const msgDate = msg.timestamp.toDate();
+                      const dayKey = msgDate.toDateString();
+                      if (dayKey !== prevDate) {
+                          const div = document.createElement('div');
+                          div.className = 'day-divider';
+                          div.innerText = formatDay(msgDate);
+                          container.appendChild(div);
+                          prevDate = dayKey;
+                      }
+                  }
+                  
+                  const timeStr = msg.timestamp ? msg.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                  
+                  const rowDiv = document.createElement('div');
+                  rowDiv.className = `msg-row ${isMe ? 'justify-end' : 'justify-start'}`;
+                  rowDiv.dataset.msgId = msgId;
+                  
+                  const indicator = document.createElement('div');
+                  indicator.className = 'swipe-indicator';
+                  indicator.innerHTML = '<i class="fa-solid fa-reply"></i>';
+                  
+                  const wrapDiv = document.createElement('div');
+                  wrapDiv.className = 'msg-wrap';
+                  wrapDiv.dataset.msgId = msgId;
+                  
+                  const bubble = document.createElement('div');
+                  bubble.className = `px-4 py-2.5 text-sm ${isMe ? 'bubble-me text-white' : 'bubble-other text-gray-200'}`;
+                  
+                  let contentHTML = '';
+                  if (msgType === 'image') {
+                      if (msg.view_once && msg.viewed) contentHTML = `<div class="text-xs italic text-gray-400 py-1"><i class="fa-solid fa-eye-slash mr-1"></i>ছবিটি দেখা হয়েছে</div>`;
+                      else if (msg.view_once && !msg.viewed) contentHTML = `<div class="view-once-box text-xs font-bold text-blue-300" onclick="event.stopPropagation(); viewOnceImage('${chatId}', '${msgId}', '${msg.text}')"><i class="fa-solid fa-lock mr-1"></i>একবার দেখতে ক্লিক করুন</div>`;
+                      else contentHTML = `<img src="${msg.text}" class="chat-image" onclick="event.stopPropagation(); window.open(this.src)">`;
+                  } else {
+                      contentHTML = `<div class="leading-relaxed break-words">${escapeHtml(msg.text)}</div>`;
+                  }
+                  
+                  let quoteHTML = '';
+                  if (msg.replyTo) {
+                      const qc = isMe ? 'quoted-me' : 'quoted-other';
+                      const rt = msg.replyTo.type || 'text';
+                      const pt = rt === 'image' ? '📷 ছবি' : escapeHtml(msg.replyTo.text || '').substring(0, 60);
+                      quoteHTML = `<div class="quoted-msg ${qc}" onclick="event.stopPropagation(); scrollToMessage('${msg.replyTo.msgId}')"><div class="font-bold mb-0.5 text-[11px]">${escapeHtml(msg.replyTo.senderName || '')}</div><div class="truncate text-[11px] opacity-90">${pt}</div></div>`;
+                  }
+                  
+                  let tickHTML = '';
+                  if (isMe) {
+                      if (msg.synced === false) tickHTML = '<i class="fa-solid fa-clock text-blue-200 ml-1"></i>';
+                      else if (msg.read) tickHTML = '<i class="fa-solid fa-check-double text-cyan-300 ml-1"></i>';
+                      else tickHTML = '<i class="fa-solid fa-check-double text-blue-200 ml-1"></i>';
+                  }
+                  
+                  let senderNameHTML = '';
+                  if (!isMe) senderNameHTML = `<div class="text-xs font-bold text-blue-400 mb-0.5">${escapeHtml(msg.senderName || 'Unknown')}</div>`;
+                  
+                  bubble.innerHTML = `${quoteHTML}${senderNameHTML}${contentHTML}<div class="text-[10px] text-right mt-0.5 ${isMe ? 'text-blue-100/80' : 'text-gray-500'}">${timeStr}${tickHTML}</div>`;
+                  wrapDiv.appendChild(bubble);
+                  
+                  if (msg.reactions) {
+                      const counts = {};
+                      Object.values(msg.reactions).forEach(e => { counts[e] = (counts[e] || 0) + 1; });
+                      const emojis = Object.keys(counts);
+                      if (emojis.length > 0) {
+                          const badge = document.createElement('div');
+                          badge.className = 'reaction-badge';
+                          badge.innerHTML = emojis.map(e => `<span>${e}</span>${counts[e] > 1 ? `<span class="count">${counts[e]}</span>` : ''}`).join('');
+                          bubble.appendChild(badge);
+                      }
+                  }
+                  
+                  rowDiv.appendChild(indicator);
+                  rowDiv.appendChild(wrapDiv);
+                  container.appendChild(rowDiv);
+                  
+                  attachMessageHandlers(wrapDiv, indicator, msg, msgId, isMe, msgType);
+              });
+              
+              checkTyping();
+              
+              // RESTORE SCROLL POSITION (this fixes the "cut" issue)
+              requestAnimationFrame(() => {
+                  if (isFirstLoad || nearBottom) {
+                      container.scrollTop = container.scrollHeight;
+                      container.dataset.loaded = chatId;
+                  } else {
+                      // Keep the same view — content grew, so adjust scrollTop
+                      const newScrollHeight = container.scrollHeight;
+                      container.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+                  }
+              });
+              
+              // Show/hide scroll button
+              updateScrollButton();
+          });
+        
+        db.collection('chats').doc(chatId).onSnapshot(doc => {
+            if (doc.exists && activeChatId === chatId) checkTyping();
+        });
+    }
+
+    function updateScrollButton() {
+        const c = $('messagesContainer');
+        const near = c.scrollHeight - c.scrollTop - c.clientHeight < 100;
+        if (near) {
+            $('scrollToBottomBtn').classList.add('hide');
+            $('scrollToBottomBtn').classList.remove('show');
+        } else {
+            $('scrollToBottomBtn').classList.remove('hide');
+            $('scrollToBottomBtn').classList.add('show');
         }
-    </script>
+    }
+
+    // ============================================
+    // MESSAGE HANDLERS
+    // ============================================
+    function attachMessageHandlers(wrapEl, indicatorEl, msg, msgId, isMe, msgType) {
+        let startX = 0, startY = 0, currentX = 0;
+        let isDragging = false, isHorizontal = false, hasMoved = false;
+        let longPressTimer = null;
+        const THRESHOLD = 65, MAX_SWIPE = 90;
+        
+        const onStart = (e) => {
+            const t = e.touches ? e.touches[0] : e;
+            startX = t.clientX; startY = t.clientY;
+            currentX = 0; isDragging = true; isHorizontal = false; hasMoved = false;
+            wrapEl.style.transition = 'none';
+            longPressTimer = setTimeout(() => {
+                if (navigator.vibrate) navigator.vibrate(30);
+                showReactionPopup(wrapEl, msg, msgId, isMe, msgType);
+                isDragging = false;
+                wrapEl.style.transition = '';
+            }, 500);
+        };
+        const onMove = (e) => {
+            const t = e.touches ? e.touches[0] : e;
+            const dx = t.clientX - startX, dy = t.clientY - startY;
+            if (longPressTimer && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { clearTimeout(longPressTimer); longPressTimer = null; }
+            if (!isDragging) return;
+            if (!isHorizontal && !hasMoved) {
+                if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+                    hasMoved = true;
+                    if (Math.abs(dx) > Math.abs(dy)) isHorizontal = true;
+                    else { isDragging = false; wrapEl.style.transition = ''; return; }
+                }
+            }
+            if (isHorizontal) {
+                if (dx < 0) dx = 0;
+                const lim = Math.min(dx, MAX_SWIPE);
+                currentX = lim;
+                if (e.cancelable) e.preventDefault();
+                wrapEl.style.transform = `translateX(${lim}px)`;
+                indicatorEl.classList.add('active');
+                if (lim >= THRESHOLD) {
+                    indicatorEl.classList.add('ready');
+                    if (!indicatorEl.dataset.vib) { if (navigator.vibrate) navigator.vibrate(15); indicatorEl.dataset.vib = '1'; }
+                } else { indicatorEl.classList.remove('ready'); delete indicatorEl.dataset.vib; }
+            }
+        };
+        const onEnd = () => {
+            if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            if (!isDragging) return;
+            isDragging = false;
+            wrapEl.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            if (isHorizontal && currentX >= THRESHOLD) {
+                activateReply(msg, msgId, msgType);
+                wrapEl.style.transform = 'translateX(0)';
+                indicatorEl.classList.remove('active', 'ready');
+                delete indicatorEl.dataset.vib;
+            } else {
+                wrapEl.style.transform = 'translateX(0)';
+                setTimeout(() => { indicatorEl.classList.remove('active', 'ready'); delete indicatorEl.dataset.vib; }, 200);
+            }
+            currentX = 0; isHorizontal = false; hasMoved = false;
+        };
+        wrapEl.addEventListener('touchstart', onStart, { passive: true });
+        wrapEl.addEventListener('touchmove', onMove, { passive: false });
+        wrapEl.addEventListener('touchend', onEnd);
+        wrapEl.addEventListener('touchcancel', onEnd);
+        wrapEl.addEventListener('mousedown', onStart);
+        wrapEl.addEventListener('mousemove', (e) => { if (isDragging || longPressTimer) onMove(e); });
+        wrapEl.addEventListener('mouseup', onEnd);
+        wrapEl.addEventListener('mouseleave', () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } if (isDragging) onEnd(); });
+    }
+
+    // ============================================
+    // REACTION POPUP
+    // ============================================
+    function showReactionPopup(el, msg, msgId, isMe, msgType) {
+        popupTarget = { msg, msgId, isMe, msgType: msgType || 'text' };
+        if (isMe) { $('popupDeleteBtn').classList.remove('hidden'); $('popupDeleteBtn').classList.add('flex'); }
+        else { $('popupDeleteBtn').classList.add('hidden'); $('popupDeleteBtn').classList.remove('flex'); }
+        $('popupCopyBtn').style.display = msgType === 'image' ? 'none' : 'flex';
+        
+        const rp = $('reactionPopup');
+        rp.classList.remove('hidden');
+        const rect = el.getBoundingClientRect();
+        const pr = rp.getBoundingClientRect();
+        const pw = pr.width || 220, ph = pr.height || 160;
+        let left = rect.left + rect.width / 2 - pw / 2;
+        let top = rect.top - ph - 8;
+        if (left < 8) left = 8;
+        if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+        if (top < 8) top = rect.bottom + 8;
+        if (top + ph > window.innerHeight - 8) top = window.innerHeight - ph - 8;
+        rp.style.left = left + 'px';
+        rp.style.top = top + 'px';
+    }
+    function hideReactionPopup() { $('reactionPopup').classList.add('hidden'); popupTarget = null; }
+
+    document.querySelectorAll('.reaction-emoji').forEach(el => {
+        el.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!popupTarget) return;
+            const emoji = el.dataset.emoji;
+            const ref = db.collection('chats').doc(activeChatId).collection('messages').doc(popupTarget.msgId);
+            const d = await ref.get();
+            const reactions = (d.data().reactions) || {};
+            if (reactions[currentUser.uid] === emoji) await ref.update({ [`reactions.${currentUser.uid}`]: firebase.firestore.FieldValue.delete() });
+            else await ref.update({ [`reactions.${currentUser.uid}`]: emoji });
+            if (navigator.vibrate) navigator.vibrate(20);
+            hideReactionPopup();
+        });
+    });
+
+    $('popupReplyBtn').addEventListener('click', (e) => { e.stopPropagation(); if (!popupTarget) return; activateReply(popupTarget.msg, popupTarget.msgId, popupTarget.msgType); hideReactionPopup(); });
+    $('popupCopyBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!popupTarget) return;
+        const t = popupTarget.msg.text;
+        if (t) navigator.clipboard.writeText(t).then(() => showToast('কপি হয়েছে!')).catch(() => {
+            const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('কপি হয়েছে!');
+        });
+        hideReactionPopup();
+    });
+    $('popupDeleteBtn').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!popupTarget) return;
+        if (!confirm('মেসেজটি ডিলিট করতে চান?')) return;
+        await db.collection('chats').doc(activeChatId).collection('messages').doc(popupTarget.msgId).delete();
+        showToast('ডিলিট হয়েছে');
+        hideReactionPopup();
+    });
+
+    document.addEventListener('click', (e) => { if (!$('reactionPopup').classList.contains('hidden') && !$('reactionPopup').contains(e.target)) hideReactionPopup(); });
+    document.addEventListener('touchstart', (e) => { if (!$('reactionPopup').classList.contains('hidden') && !$('reactionPopup').contains(e.target)) hideReactionPopup(); }, { passive: true });
+
+    // ============================================
+    // REPLY
+    // ============================================
+    function activateReply(msg, msgId, msgType) {
+        const type = msgType || msg.type || 'text';
+        replyingTo = { msgId, text: type === 'image' ? '📷 ছবি' : (msg.text || ''), type, senderName: msg.senderName || 'Unknown', senderId: msg.senderId };
+        $('replyPreviewName').innerText = msg.senderId === currentUser.uid ? 'আপনি' : (msg.senderName || 'Unknown');
+        $('replyPreviewText').innerText = replyingTo.text;
+        $('replyPreview').classList.remove('hidden');
+        if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+        $('messageInput').focus();
+    }
+    $('cancelReplyBtn').addEventListener('click', () => { replyingTo = null; $('replyPreview').classList.add('hidden'); });
+    function cancelReply() { replyingTo = null; $('replyPreview').classList.add('hidden'); }
+
+    window.scrollToMessage = (msgId) => {
+        const el = $('messagesContainer').querySelector(`[data-msg-id="${msgId}"]`);
+        if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('highlight-target'); setTimeout(() => el.classList.remove('highlight-target'), 1500); }
+    };
+
+    // ============================================
+    // HELPERS
+    // ============================================
+    async function checkTyping() {
+        if (!activeChatId || !activePartnerId) return;
+        const d = await db.collection('chats').doc(activeChatId).get();
+        if (d.exists) {
+            const t = d.data().typing || {};
+            const pt = t[activePartnerId];
+            if (pt && (Date.now() - pt.toMillis()) < 4000) $('chatPartnerStatus').innerHTML = `<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>`;
+        }
+    }
+    function formatDay(date) {
+        const n = new Date(), t = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+        const m = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const d = Math.floor((t - m) / 86400000);
+        if (d === 0) return 'আজ';
+        if (d === 1) return 'গতকাল';
+        if (d < 7) return date.toLocaleDateString('bn-BD', { weekday: 'long' });
+        return date.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    // ============================================
+    // SCROLL EVENTS
+    // ============================================
+    $('messagesContainer').addEventListener('scroll', updateScrollButton);
+    $('scrollToBottomBtn').addEventListener('click', () => {
+        const c = $('messagesContainer');
+        c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' });
+        $('scrollToBottomBtn').classList.add('hide');
+        $('scrollToBottomBtn').classList.remove('show');
+    });
+
+    window.viewOnceImage = async (chatId, msgId, data) => {
+        const w = window.open();
+        w.document.write(`<html><head><title>ShohojChat</title><style>body{margin:0;background:#0a0f1c;display:flex;align-items:center;justify-content:center;height:100vh;}</style></head><body><img src="${data}" style="max-width:100%; max-height:100vh; display:block;"></body></html>`);
+        await db.collection('chats').doc(chatId).collection('messages').doc(msgId).update({ viewed: true, text: "" });
+    };
+
+    // ============================================
+    // SEND
+    // ============================================
+    $('sendBtn').addEventListener('click', () => sendMessage('text'));
+    $('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage('text'); } });
+    $('messageInput').addEventListener('input', async () => {
+        if (!activeChatId) return;
+        await db.collection('chats').doc(activeChatId).update({ [`typing.${currentUser.uid}`]: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+        if (typingTimeout) clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            db.collection('chats').doc(activeChatId).update({ [`typing.${currentUser.uid}`]: firebase.firestore.FieldValue.delete() }).catch(()=>{});
+        }, 3000);
+    });
+
+    $('chatImageBtn').addEventListener('click', () => $('chatImageInput').click());
+    $('chatImageInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    const max = 800;
+                    if (w > h) { if (w > max) { h *= max / w; w = max; } }
+                    else { if (h > max) { w *= max / h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const b64 = canvas.toDataURL('image/jpeg', 0.6);
+                    const vo = confirm("এই ছবিটি কি একবার দেখার জন্য পাঠাতে চান?\n\nOK = একবার\nCancel = সবসময়");
+                    sendMessage('image', b64, vo);
+                    $('chatImageInput').value = '';
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    async function sendMessage(type = 'text', imageData = null, viewOnce = false) {
+        let text = $('messageInput').value.trim();
+        if (type === 'text' && text === '') return;
+        if (!activeChatId) return;
+        const msgData = {
+            type, text: type === 'image' ? imageData : text,
+            senderId: currentUser.uid,
+            senderName: userProfile.display_name || currentUser.email.split('@')[0],
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            synced: navigator.onLine ? true : false
+        };
+        if (type === 'image' && viewOnce) { msgData.view_once = true; msgData.viewed = false; }
+        if (replyingTo) {
+            msgData.replyTo = {
+                msgId: replyingTo.msgId || '', text: replyingTo.text || '',
+                type: replyingTo.type || 'text',
+                senderName: replyingTo.senderId === currentUser.uid ? 'আপনি' : (replyingTo.senderName || 'Unknown'),
+                senderId: replyingTo.senderId || ''
+            };
+        }
+        try {
+            await db.collection('chats').doc(activeChatId).collection('messages').add(msgData);
+            await db.collection('chats').doc(activeChatId).update({
+                last_message: type === 'image' ? '📷 ছবি' : text,
+                updated_at: firebase.firestore.FieldValue.serverTimestamp(),
+                [`typing.${currentUser.uid}`]: firebase.firestore.FieldValue.delete()
+            });
+            if (type === 'text') {
+                $('messageInput').value = '';
+                $('emojiPicker').classList.add('hidden');
+                // ⚡ KEY FIX: keep focus so keyboard stays open and text bar remains visible
+                setTimeout(() => $('messageInput').focus(), 50);
+            }
+            cancelReply();
+            // Scroll to bottom after sending
+            requestAnimationFrame(() => {
+                const c = $('messagesContainer');
+                c.scrollTop = c.scrollHeight;
+                wasAtBottom = true;
+            });
+        } catch (err) {
+            if(!isOnline) alert("আপনি অফলাইনে আছেন। ইন্টারনেট এলে মেসেজ অটো সেন্ড হবে।");
+            else alert("সমস্যা: " + err.message);
+        }
+    }
+
+    // Emoji
+    $('emojiToggle').addEventListener('click', () => $('emojiPicker').classList.toggle('hidden'));
+    document.querySelectorAll('.emoji-btn').forEach(b => {
+        b.addEventListener('click', (e) => { $('messageInput').value += e.target.innerText; $('messageInput').focus(); });
+    });
+
+    // ============================================
+    // SETTINGS
+    // ============================================
+    $('settingsBtn').addEventListener('click', () => { updateSettingsUI(); showScreen(settingsScreen); });
+    $('backFromSettingsBtn').addEventListener('click', () => showScreen(inboxScreen));
+    $('settingsLogoutBtn').addEventListener('click', logout);
+
+    $('settingsClearAllChats').addEventListener('click', async () => {
+        if (!confirm('আপনার সব চ্যাট ডিলিট হয়ে যাবে। আপনি নিশ্চিত?')) return;
+        const snap = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
+        for (const doc of snap.docs) {
+            const msgs = await doc.ref.collection('messages').get();
+            for (const m of msgs.docs) await m.ref.delete();
+            await doc.ref.delete();
+        }
+        showToast('সব চ্যাট মুছে ফেলা হয়েছে');
+        showScreen(inboxScreen);
+        loadChatList();
+    });
+
+    $('settingsExportChats').addEventListener('click', async () => {
+        showToast('ব্যাকআপ তৈরি হচ্ছে...');
+        const snap = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
+        const data = [];
+        for (const doc of snap.docs) {
+            const msgs = await doc.ref.collection('messages').get();
+            const msgsData = msgs.docs.map(m => ({ id: m.id, ...m.data() }));
+            data.push({ chat: { id: doc.id, ...doc.data() }, messages: msgsData });
+        }
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `shohojchat-backup-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('ব্যাকআপ ডাউনলোড হয়েছে!');
+    });
+
+    $('settingsAbout').addEventListener('click', () => {
+        alert('ShohojChat v1.0\n\nএকটি সহজ চ্যাট অ্যাপ\n\nMade with ❤️ in Bangladesh');
+    });
+
+    // ============================================
+    // REQUESTS
+    // ============================================
+    $('requestsBtn').addEventListener('click', () => { loadRequestsList(); showScreen(requestsScreen); });
+    $('backFromRequestsBtn').addEventListener('click', () => showScreen(inboxScreen));
+
+    // ============================================
+    // CHAT MENU
+    // ============================================
+    $('chatMenuBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const popup = $('chatMenuPopup');
+        const rect = e.currentTarget.getBoundingClientRect();
+        popup.style.left = Math.max(8, rect.right - 190) + 'px';
+        popup.style.top = (rect.bottom + 6) + 'px';
+        popup.classList.remove('hidden');
+    });
+    $('menuNicknameBtn').addEventListener('click', () => { $('chatMenuPopup').classList.add('hidden'); openNicknameModal(); });
+    $('menuClearChatBtn').addEventListener('click', async () => {
+        $('chatMenuPopup').classList.add('hidden');
+        if (!confirm('এই চ্যাটের সব মেসেজ ডিলিট হয়ে যাবে। আপনি নিশ্চিত?')) return;
+        const msgs = await db.collection('chats').doc(activeChatId).collection('messages').get();
+        for (const m of msgs.docs) await m.ref.delete();
+        showToast('চ্যাট ক্লিয়ার হয়েছে');
+    });
+    document.addEventListener('click', (e) => {
+        if (!$('chatMenuPopup').classList.contains('hidden') && !$('chatMenuPopup').contains(e.target)) $('chatMenuPopup').classList.add('hidden');
+    });
+
+    $('chatHeaderInfo').addEventListener('click', openNicknameModal);
+</script>
 </body>
 </html>
