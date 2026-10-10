@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShohozChat</title>
+    <title>ShohojChat</title>
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ShohojChat">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js"></script>
@@ -55,9 +62,7 @@
         .messages-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         .flex-shrink-0 { flex-shrink: 0; }
         
-        /* ============================================
-           REELS - Universal Video Player
-           ============================================ */
+        /* REELS */
         #reelsContainer {
             flex: 1 1 0; min-height: 0;
             overflow-y: scroll; overflow-x: hidden;
@@ -328,7 +333,7 @@
             <div class="bg-gradient-to-tr from-blue-500 to-purple-600 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform rotate-3">
                 <i class="fa-solid fa-comments text-5xl text-white"></i>
             </div>
-            <h1 class="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohozChat</h1>
+            <h1 class="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohojChat</h1>
             <p class="text-gray-400 mb-8 text-sm">সহজে কথা বলুন, বন্ধুদের সাথে যুক্ত থাকুন</p>
             <div class="relative mb-3">
                 <i class="fa-solid fa-envelope absolute left-4 top-4 text-gray-500"></i>
@@ -348,7 +353,7 @@
     <div id="inboxScreen" class="screen hidden">
         <div class="p-5 flex justify-between items-center border-b border-slate-700/50 flex-shrink-0">
             <div>
-                <h2 class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohozChat</h2>
+                <h2 class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohojChat</h2>
                 <p class="text-xs text-gray-500 mt-0.5" id="welcomeText">স্বাগতম!</p>
             </div>
             <div class="flex gap-2">
@@ -480,7 +485,7 @@
             <button id="settingsLogoutBtn" class="btn-press w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 py-3.5 rounded-2xl font-bold transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-right-from-bracket"></i> লগআউট করুন
             </button>
-            <p class="text-center text-xs text-gray-600 mt-6 mb-4">ShohozChat v1.0 • Made with ❤️</p>
+            <p class="text-center text-xs text-gray-600 mt-6 mb-4">ShohojChat v1.0 • Made with ❤️</p>
         </div>
     </div>
 
@@ -539,7 +544,7 @@
             <label class="block text-sm text-gray-400 mb-1.5">লিংক</label>
             <input type="text" id="newReelUrl" placeholder="https://..." class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-sm">
             <label class="block text-sm text-gray-400 mb-1.5">একাধিক লিংক (প্রতি লাইনে একটি)</label>
-            <textarea id="newReelUrlsBulk" rows="4" placeholder="https://youtube.com/shorts/...&#10;https://instagram.com/reel/...&#10;https://example.com/video.m3u8&#10;https://example.com/video.mp4" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-xs"></textarea>
+            <textarea id="newReelUrlsBulk" rows="4" placeholder="https://youtube.com/shorts/...&#10;https://instagram.com/reel/...&#10;https://example.com/video.m3u8" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-xs"></textarea>
             <div class="flex gap-2">
                 <button id="saveReelBtn" class="btn-press flex-1 bg-gradient-to-r from-pink-600 to-purple-600 text-white py-3 rounded-xl font-bold transition">যোগ করুন</button>
                 <button id="closeAddReelBtn2" class="btn-press bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold transition">বাতিল</button>
@@ -641,9 +646,7 @@
     let allReels = [];
     let reelsLoaded = false;
 
-    // ============================================
     // ONLINE / OFFLINE
-    // ============================================
     window.addEventListener('online', () => { isOnline = true; markOnline(); });
     window.addEventListener('offline', () => { isOnline = false; markOffline(); });
     document.addEventListener('visibilitychange', () => {
@@ -702,9 +705,7 @@
         screen.classList.remove('hidden');
     }
 
-    // ============================================
     // AUTH
-    // ============================================
     $('loginBtn').addEventListener('click', () => {
         $('authMessage').innerText = "লোড হচ্ছে...";
         auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value)
@@ -760,57 +761,30 @@
         }
     });
 
-    // ============================================
     // UNIVERSAL VIDEO URL DETECTION
-    // ============================================
     function detectVideoSource(url) {
         if (!url) return null;
         const u = url.trim();
-
-        // Direct video files
         if (/\.m3u8(\?|#|$)/i.test(u)) return { type: 'hls', url: u };
         if (/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(u)) return { type: 'video', url: u };
 
-        // YouTube
         let m = u.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
         if (m) return {
             type: 'iframe',
             url: `https://www.youtube.com/embed/${m[1]}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${m[1]}&rel=0&modestbranding=1`,
             original: u
         };
-
-        // Vimeo
         m = u.match(/vimeo\.com\/(\d+)/);
-        if (m) return {
-            type: 'iframe',
-            url: `https://player.vimeo.com/video/${m[1]}?autoplay=1&muted=1&loop=1`,
-            original: u
-        };
-
-        // Instagram
+        if (m) return { type: 'iframe', url: `https://player.vimeo.com/video/${m[1]}?autoplay=1&muted=1&loop=1`, original: u };
         m = u.match(/instagram\.com\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/);
-        if (m) return {
-            type: 'iframe',
-            url: `https://www.instagram.com/reel/${m[1]}/embed/`,
-            original: u
-        };
-
-        // TikTok
+        if (m) return { type: 'iframe', url: `https://www.instagram.com/reel/${m[1]}/embed/`, original: u };
         m = u.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
-        if (m) return {
-            type: 'iframe',
-            url: `https://www.tiktok.com/embed/v2/${m[1]}?autoplay=1&loop=1`,
-            original: u
-        };
-
-        // Facebook
+        if (m) return { type: 'iframe', url: `https://www.tiktok.com/embed/v2/${m[1]}?autoplay=1&loop=1`, original: u };
         if (/facebook\.com|fb\.watch/.test(u)) return {
             type: 'iframe',
             url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}&show_text=0&autoplay=1`,
             original: u
         };
-
-        // Unknown - try as direct video
         return { type: 'video', url: u, original: u };
     }
 
@@ -819,44 +793,26 @@
         catch(e) { return 'link'; }
     }
 
-    // ============================================
     // REELS SYSTEM
-    // ============================================
     function setupReelsListener() {
         if (unsubscribeReels) unsubscribeReels();
-        unsubscribeReels = db.collection('reels')
-            .orderBy('createdAt', 'asc')
-            .onSnapshot(snapshot => {
-                allReels = [];
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    allReels.push({ id: doc.id, ...d });
-                });
-                reelsLoaded = true;
-                if (!$('reelsScreen').classList.contains('hidden')) {
-                    renderReels();
-                }
-            }, err => console.log('Reels listener error:', err));
+        unsubscribeReels = db.collection('reels').orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+            allReels = [];
+            snapshot.forEach(doc => { allReels.push({ id: doc.id, ...doc.data() }); });
+            reelsLoaded = true;
+            if (!$('reelsScreen').classList.contains('hidden')) renderReels();
+        }, err => console.log('Reels listener error:', err));
     }
 
     function renderReels() {
         const container = $('reelsContainer');
-        if (container._hlsPlayers) {
-            container._hlsPlayers.forEach(h => { try { h.destroy(); } catch(e){} });
-        }
+        if (container._hlsPlayers) container._hlsPlayers.forEach(h => { try { h.destroy(); } catch(e){} });
         container._hlsPlayers = [];
-        if (container._observer) {
-            container._observer.disconnect();
-            container._observer = null;
-        }
+        if (container._observer) { container._observer.disconnect(); container._observer = null; }
         container.innerHTML = '';
 
         if (!reelsLoaded) {
-            container.innerHTML = `
-                <div class="reels-empty">
-                    <div class="reel-loading-spinner" style="margin-bottom:16px;"></div>
-                    <p class="text-gray-400">ভিডিও লোড হচ্ছে...</p>
-                </div>`;
+            container.innerHTML = `<div class="reels-empty"><div class="reel-loading-spinner" style="margin-bottom:16px;"></div><p class="text-gray-400">ভিডিও লোড হচ্ছে...</p></div>`;
             return;
         }
 
@@ -867,7 +823,7 @@
                         <i class="fa-solid fa-circle-play text-4xl text-pink-400"></i>
                     </div>
                     <p class="text-white font-semibold mb-2">এখনো কোনো ভিডিও যোগ করা হয়নি</p>
-                    <p class="text-gray-500 text-sm mb-4">YouTube, Instagram, TikTok, Facebook, Vimeo, m3u8, mp4 — যেকোনো লিংক দিন</p>
+                    <p class="text-gray-500 text-sm mb-4">YouTube, Instagram, TikTok, m3u8, mp4 — যেকোনো লিংক দিন</p>
                     <button onclick="document.getElementById('reelAddBtn').click()" class="btn-press bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold transition">
                         <i class="fa-solid fa-plus mr-2"></i>ভিডিও যোগ করুন
                     </button>
@@ -878,12 +834,10 @@
         allReels.forEach((reel, idx) => {
             const source = detectVideoSource(reel.url);
             if (!source) return;
-
             const item = document.createElement('div');
             item.className = 'reel-item';
             item.dataset.index = idx;
             item.dataset.type = source.type;
-
             const host = getHostName(source.original);
             const isVideoTag = (source.type === 'video' || source.type === 'hls');
 
@@ -891,63 +845,36 @@
                 item.innerHTML = `
                     <div class="reel-number">${idx + 1} / ${allReels.length}</div>
                     <video id="vid-${idx}" playsinline loop muted preload="auto" webkit-playsinline></video>
-                    <div class="reel-play-overlay" data-play="${idx}">
-                        <i class="fa-solid fa-play"></i>
-                    </div>
-                    <div class="reel-sound-btn" data-idx="${idx}">
-                        <i class="fa-solid fa-volume-xmark"></i>
-                    </div>
-                    <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')">
-                        <i class="fa-solid fa-link"></i> ${host}
-                    </button>`;
+                    <div class="reel-play-overlay" data-play="${idx}"><i class="fa-solid fa-play"></i></div>
+                    <div class="reel-sound-btn" data-idx="${idx}"><i class="fa-solid fa-volume-xmark"></i></div>
+                    <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')"><i class="fa-solid fa-link"></i> ${host}</button>`;
             } else {
                 item.innerHTML = `
                     <div class="reel-number">${idx + 1} / ${allReels.length}</div>
                     <iframe src="${source.url}" frameborder="0" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
-                    <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')">
-                        <i class="fa-solid fa-link"></i> ${host}
-                    </button>`;
+                    <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')"><i class="fa-solid fa-link"></i> ${host}</button>`;
             }
             container.appendChild(item);
 
-            // Setup video players
             if (isVideoTag) {
                 const video = item.querySelector('video');
                 const playOverlay = item.querySelector('.reel-play-overlay');
-
                 if (source.type === 'hls') {
-                    if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                        video.src = source.url;
-                    } else if (window.Hls && Hls.isSupported()) {
+                    if (video.canPlayType('application/vnd.apple.mpegurl')) video.src = source.url;
+                    else if (window.Hls && Hls.isSupported()) {
                         const hls = new Hls({ enableWorker: true });
                         hls.loadSource(source.url);
                         hls.attachMedia(video);
                         container._hlsPlayers.push(hls);
-                    } else {
-                        video.src = source.url;
-                    }
-                } else {
-                    video.src = source.url;
-                }
-
+                    } else video.src = source.url;
+                } else video.src = source.url;
                 video.muted = true;
                 video.play().catch(() => {});
-
-                // Tap to play/pause
                 playOverlay.addEventListener('click', () => {
-                    if (video.paused) {
-                        video.play().catch(()=>{});
-                        playOverlay.classList.remove('show');
-                    } else {
-                        video.pause();
-                        playOverlay.querySelector('i').className = 'fa-solid fa-play';
-                        playOverlay.classList.add('show');
-                    }
+                    if (video.paused) { video.play().catch(()=>{}); playOverlay.classList.remove('show'); }
+                    else { video.pause(); playOverlay.querySelector('i').className = 'fa-solid fa-play'; playOverlay.classList.add('show'); }
                 });
-
-                video.addEventListener('play', () => {
-                    playOverlay.classList.remove('show');
-                });
+                video.addEventListener('play', () => playOverlay.classList.remove('show'));
                 video.addEventListener('pause', () => {
                     playOverlay.querySelector('i').className = 'fa-solid fa-play';
                     playOverlay.classList.add('show');
@@ -956,7 +883,6 @@
         });
 
         setupReelObserver();
-
         if (allReels.length > 1) {
             const hint = document.createElement('div');
             hint.className = 'swipe-hint';
@@ -969,26 +895,18 @@
     function setupReelObserver() {
         const container = $('reelsContainer');
         if (container._observer) container._observer.disconnect();
-
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                const item = entry.target;
-                const video = item.querySelector('video');
+                const video = entry.target.querySelector('video');
                 if (!video) return;
-                if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-                    video.currentTime = 0;
-                    video.play().catch(() => {});
-                } else {
-                    video.pause();
-                }
+                if (entry.isIntersecting && entry.intersectionRatio > 0.6) { video.currentTime = 0; video.play().catch(() => {}); }
+                else video.pause();
             });
         }, { root: container, threshold: [0, 0.6, 1] });
-
         container.querySelectorAll('.reel-item').forEach(el => obs.observe(el));
         container._observer = obs;
     }
 
-    // Sound toggle
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.reel-sound-btn');
         if (!btn) return;
@@ -1000,19 +918,12 @@
         btn.innerHTML = video.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
     });
 
-    // Add reels
     async function addNewReels(urlsList) {
         const cleaned = urlsList.map(u => u.trim()).filter(u => u && /^https?:\/\//i.test(u));
-        if (cleaned.length === 0) {
-            alert('কোনো সঠিক লিংক পাওয়া যায়নি! http:// বা https:// দিয়ে শুরু হতে হবে।');
-            return 0;
-        }
+        if (cleaned.length === 0) { alert('কোনো সঠিক লিংক পাওয়া যায়নি!'); return 0; }
         const existing = new Set(allReels.map(r => r.url));
         const toAdd = cleaned.filter(u => !existing.has(u));
-        if (toAdd.length === 0) {
-            alert('এই লিংকগুলো ইতিমধ্যে যোগ করা আছে!');
-            return 0;
-        }
+        if (toAdd.length === 0) { alert('এই লিংকগুলো ইতিমধ্যে যোগ করা আছে!'); return 0; }
         const batch = db.batch();
         toAdd.forEach(url => {
             const ref = db.collection('reels').doc();
@@ -1027,7 +938,6 @@
         return toAdd.length;
     }
 
-    // Reels nav
     $('reelsBtn').addEventListener('click', () => { showScreen(reelsScreen); renderReels(); });
     $('backFromReelsBtn').addEventListener('click', () => showScreen(inboxScreen));
     $('reelRefreshBtn').addEventListener('click', () => { showToast('রিফ্রেশ হচ্ছে...'); renderReels(); });
@@ -1058,9 +968,7 @@
         }
     });
 
-    // ============================================
     // PROFILE
-    // ============================================
     function openProfileModal() {
         $('profileNameInput').value = userProfile.display_name || "";
         if (userProfile.photo_url) {
@@ -1124,14 +1032,10 @@
     function updateSettingsUI() {
         $('settingsName').innerText = userProfile.display_name || 'নাম';
         $('settingsEmail').innerText = userProfile.email || '';
-        if (userProfile.photo_url) {
-            $('settingsAvatar').innerHTML = `<img src="${userProfile.photo_url}" class="w-full h-full object-cover">`;
-        }
+        if (userProfile.photo_url) $('settingsAvatar').innerHTML = `<img src="${userProfile.photo_url}" class="w-full h-full object-cover">`;
     }
 
-    // ============================================
     // NICKNAME
-    // ============================================
     function getNicknameForUser(chat, userId) {
         if (chat && chat.nicknames && chat.nicknames[userId]) return chat.nicknames[userId];
         return null;
@@ -1146,7 +1050,6 @@
     }
     function closeNicknameModal() { nicknameModal.classList.add('hidden'); nicknameModal.classList.remove('flex'); }
     $('closeNicknameBtn').addEventListener('click', closeNicknameModal);
-
     $('saveNicknameBtn').addEventListener('click', async () => {
         const n = $('nicknameInput').value.trim();
         if (!n) return alert("নিকনেম খালি রাখা যাবে না!");
@@ -1160,9 +1063,7 @@
         closeNicknameModal();
     });
 
-    // ============================================
     // SEARCH
-    // ============================================
     $('searchInput').addEventListener('input', async (e) => {
         const q = e.target.value.trim().toLowerCase();
         if (q.length < 2) { loadChatList(); return; }
@@ -1196,9 +1097,7 @@
         });
     });
 
-    // ============================================
     // CHAT LIST
-    // ============================================
     function loadChatList() {
         if (unsubscribeChatsList) unsubscribeChatsList();
         unsubscribeChatsList = db.collection('chats')
@@ -1219,9 +1118,7 @@
               list.innerHTML = '';
               if (acceptedChats.length === 0) {
                   list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
-                      <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-                          <i class="fa-solid fa-comment-dots text-4xl text-slate-600"></i>
-                      </div>
+                      <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-comment-dots text-4xl text-slate-600"></i></div>
                       <p class="text-gray-400 font-semibold">কোনো চ্যাট নেই</p>
                       <p class="text-gray-600 text-sm mt-1">উপরে নাম দিয়ে বন্ধু খুঁজুন!</p>
                   </div>`;
@@ -1250,7 +1147,7 @@
                   `;
                   div.onclick = () => openChat(chatId, partnerId);
                   list.appendChild(div);
-                  
+
                   db.collection('users').doc(partnerId).onSnapshot(ud => {
                       if (!ud.exists) return;
                       const u = ud.data();
@@ -1277,10 +1174,7 @@
                           : "absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full";
                       if (!nickname) {
                           const n = document.getElementById(`name-${chatId}`);
-                          if (n) {
-                              const ns = n.querySelector('.partner-name');
-                              if (ns) ns.textContent = u.display_name || 'Unknown';
-                          }
+                          if (n) { const ns = n.querySelector('.partner-name'); if (ns) ns.textContent = u.display_name || 'Unknown'; }
                       }
                   });
               });
@@ -1297,96 +1191,84 @@
         return date.toLocaleDateString([], {month: 'short', day: 'numeric'});
     }
 
-    // ============================================
     // REQUESTS
-    // ============================================
     function setupRequestsListener() {
-        db.collection('chats')
-          .where('participants', 'array-contains', currentUser.uid)
-          .onSnapshot(snapshot => {
-              let pending = 0;
-              snapshot.forEach(doc => {
-                  const d = doc.data();
-                  if (d.status === 'pending' && d.initiator !== currentUser.uid) pending++;
-              });
-              const badge = $('requestsBadge');
-              if (pending > 0) { badge.innerText = pending; badge.classList.remove('hidden'); }
-              else badge.classList.add('hidden');
-          });
+        db.collection('chats').where('participants', 'array-contains', currentUser.uid).onSnapshot(snapshot => {
+            let pending = 0;
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                if (d.status === 'pending' && d.initiator !== currentUser.uid) pending++;
+            });
+            const badge = $('requestsBadge');
+            if (pending > 0) { badge.innerText = pending; badge.classList.remove('hidden'); }
+            else badge.classList.add('hidden');
+        });
     }
 
     function loadRequestsList() {
         const list = $('requestsList');
-        db.collection('chats')
-          .where('participants', 'array-contains', currentUser.uid)
-          .where('status', '==', 'pending')
-          .onSnapshot(async snapshot => {
-              list.innerHTML = '';
-              const pending = [];
-              snapshot.forEach(doc => {
-                  const d = doc.data();
-                  if (d.initiator !== currentUser.uid) pending.push({ id: doc.id, data: d });
-              });
-              if (pending.length === 0) {
-                  list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
-                      <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-                          <i class="fa-solid fa-user-plus text-4xl text-slate-600"></i>
-                      </div>
-                      <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
-                  </div>`;
-                  return;
-              }
-              for (const { id: chatId, data: chat } of pending) {
-                  const partnerId = chat.participants.find(id => id !== currentUser.uid);
-                  const uDoc = await db.collection('users').doc(partnerId).get();
-                  const u = uDoc.exists ? uDoc.data() : { display_name: 'Unknown', photo_url: '' };
-                  const div = document.createElement('div');
-                  div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30";
-                  div.innerHTML = `
-                      <div class="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center font-bold text-blue-400 text-lg overflow-hidden shadow-lg flex-shrink-0">
-                          ${u.photo_url ? `<img src="${u.photo_url}" class="w-full h-full object-cover">` : (u.display_name || '?')[0].toUpperCase()}
-                      </div>
-                      <div class="flex-1 min-w-0">
-                          <h3 class="font-bold text-white truncate">${escapeHtml(u.display_name)}</h3>
-                          <p class="text-xs text-gray-500 truncate">${escapeHtml(chat.last_message || 'চ্যাট শুরু করতে চায়')}</p>
-                      </div>
-                      <div class="flex gap-1 flex-shrink-0">
-                          <button class="req-accept btn-press bg-green-500/20 text-green-400 border border-green-500/30 w-9 h-9 rounded-full flex items-center justify-center" data-chat="${chatId}"><i class="fa-solid fa-check"></i></button>
-                          <button class="req-reject btn-press bg-red-500/20 text-red-400 border border-red-500/30 w-9 h-9 rounded-full flex items-center justify-center" data-chat="${chatId}"><i class="fa-solid fa-xmark"></i></button>
-                      </div>
-                  `;
-                  list.appendChild(div);
-              }
-              list.querySelectorAll('.req-accept').forEach(btn => {
-                  btn.addEventListener('click', async (e) => {
-                      e.stopPropagation();
-                      await db.collection('chats').doc(btn.dataset.chat).update({ status: 'accepted' });
-                      showToast('চ্যাট Accept হয়েছে!');
-                  });
-              });
-              list.querySelectorAll('.req-reject').forEach(btn => {
-                  btn.addEventListener('click', async (e) => {
-                      e.stopPropagation();
-                      if (!confirm('রিকোয়েস্ট ডিলিট করবেন?')) return;
-                      await db.collection('chats').doc(btn.dataset.chat).delete();
-                      showToast('রিকোয়েস্ট ডিলিট হয়েছে');
-                  });
-              });
-          });
+        db.collection('chats').where('participants', 'array-contains', currentUser.uid).where('status', '==', 'pending').onSnapshot(async snapshot => {
+            list.innerHTML = '';
+            const pending = [];
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                if (d.initiator !== currentUser.uid) pending.push({ id: doc.id, data: d });
+            });
+            if (pending.length === 0) {
+                list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
+                    <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-user-plus text-4xl text-slate-600"></i></div>
+                    <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
+                </div>`;
+                return;
+            }
+            for (const { id: chatId, data: chat } of pending) {
+                const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                const uDoc = await db.collection('users').doc(partnerId).get();
+                const u = uDoc.exists ? uDoc.data() : { display_name: 'Unknown', photo_url: '' };
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30";
+                div.innerHTML = `
+                    <div class="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center font-bold text-blue-400 text-lg overflow-hidden shadow-lg flex-shrink-0">
+                        ${u.photo_url ? `<img src="${u.photo_url}" class="w-full h-full object-cover">` : (u.display_name || '?')[0].toUpperCase()}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-white truncate">${escapeHtml(u.display_name)}</h3>
+                        <p class="text-xs text-gray-500 truncate">${escapeHtml(chat.last_message || 'চ্যাট শুরু করতে চায়')}</p>
+                    </div>
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button class="req-accept btn-press bg-green-500/20 text-green-400 border border-green-500/30 w-9 h-9 rounded-full flex items-center justify-center" data-chat="${chatId}"><i class="fa-solid fa-check"></i></button>
+                        <button class="req-reject btn-press bg-red-500/20 text-red-400 border border-red-500/30 w-9 h-9 rounded-full flex items-center justify-center" data-chat="${chatId}"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            }
+            list.querySelectorAll('.req-accept').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    await db.collection('chats').doc(btn.dataset.chat).update({ status: 'accepted' });
+                    showToast('চ্যাট Accept হয়েছে!');
+                });
+            });
+            list.querySelectorAll('.req-reject').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm('রিকোয়েস্ট ডিলিট করবেন?')) return;
+                    await db.collection('chats').doc(btn.dataset.chat).delete();
+                    showToast('রিকোয়েস্ট ডিলিট হয়েছে');
+                });
+            });
+        });
     }
 
-    // ============================================
     // START CHAT
-    // ============================================
     async function startChat(friend) {
         const existing = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
         let chatExists = false, existingId = null;
         existing.forEach(doc => {
             if (doc.data().participants.includes(friend.uid)) { chatExists = true; existingId = doc.id; }
         });
-        if (chatExists) {
-            openChat(existingId, friend.uid);
-        } else {
+        if (chatExists) openChat(existingId, friend.uid);
+        else {
             const ref = await db.collection('chats').add({
                 participants: [currentUser.uid, friend.uid],
                 initiator: currentUser.uid,
@@ -1398,16 +1280,14 @@
         }
     }
 
-    // ============================================
     // OPEN CHAT
-    // ============================================
     function openChat(chatId, partnerId) {
         activeChatId = chatId;
         activePartnerId = partnerId;
         cancelReply(); hideReactionPopup();
         showScreen(chatRoomScreen);
         $('messagesContainer').dataset.loaded = '';
-        
+
         if (unsubscribePartnerStatus) unsubscribePartnerStatus();
         unsubscribePartnerStatus = db.collection('users').doc(partnerId).onSnapshot(doc => {
             if (!doc.exists) return;
@@ -1421,12 +1301,12 @@
             $('chatPartnerStatus').innerHTML = `<span class="w-2 h-2 ${dc} rounded-full inline-block"></span> ${st}`;
             updateHeaderName();
         });
-        
+
         if (unsubscribeChatDoc) unsubscribeChatDoc();
         unsubscribeChatDoc = db.collection('chats').doc(chatId).onSnapshot(doc => {
             if (doc.exists) { activeChatData = doc.data(); updateHeaderName(); }
         });
-        
+
         loadMessages(chatId);
     }
 
@@ -1449,9 +1329,7 @@
         loadChatList();
     });
 
-    // ============================================
     // LOAD MESSAGES
-    // ============================================
     function loadMessages(chatId) {
         if (unsubscribeMessages) unsubscribeMessages();
         unsubscribeMessages = db.collection('chats').doc(chatId).collection('messages')
@@ -1462,16 +1340,16 @@
               const prevScrollTop = container.scrollTop;
               const isFirstLoad = (container.dataset.loaded !== chatId);
               const nearBottom = prevScrollHeight - prevScrollTop - container.clientHeight < 150;
-              
+
               container.innerHTML = '';
               let prevDate = null;
-              
+
               snapshot.forEach(doc => {
                   const msg = doc.data();
                   const msgId = doc.id;
                   const isMe = msg.senderId === currentUser.uid;
                   const msgType = msg.type || 'text';
-                  
+
                   if (msg.timestamp) {
                       const msgDate = msg.timestamp.toDate();
                       const dayKey = msgDate.toDateString();
@@ -1483,24 +1361,24 @@
                           prevDate = dayKey;
                       }
                   }
-                  
+
                   const timeStr = msg.timestamp ? msg.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                  
+
                   const rowDiv = document.createElement('div');
                   rowDiv.className = `msg-row ${isMe ? 'justify-end' : 'justify-start'}`;
                   rowDiv.dataset.msgId = msgId;
-                  
+
                   const indicator = document.createElement('div');
                   indicator.className = 'swipe-indicator';
                   indicator.innerHTML = '<i class="fa-solid fa-reply"></i>';
-                  
+
                   const wrapDiv = document.createElement('div');
                   wrapDiv.className = 'msg-wrap';
                   wrapDiv.dataset.msgId = msgId;
-                  
+
                   const bubble = document.createElement('div');
                   bubble.className = `px-4 py-2.5 text-sm ${isMe ? 'bubble-me text-white' : 'bubble-other text-gray-200'}`;
-                  
+
                   let contentHTML = '';
                   if (msgType === 'image') {
                       if (msg.view_once && msg.viewed) contentHTML = `<div class="text-xs italic text-gray-400 py-1"><i class="fa-solid fa-eye-slash mr-1"></i>ছবিটি দেখা হয়েছে</div>`;
@@ -1509,7 +1387,7 @@
                   } else {
                       contentHTML = `<div class="leading-relaxed break-words">${escapeHtml(msg.text)}</div>`;
                   }
-                  
+
                   let quoteHTML = '';
                   if (msg.replyTo) {
                       const qc = isMe ? 'quoted-me' : 'quoted-other';
@@ -1517,20 +1395,20 @@
                       const pt = rt === 'image' ? '📷 ছবি' : escapeHtml(msg.replyTo.text || '').substring(0, 60);
                       quoteHTML = `<div class="quoted-msg ${qc}" onclick="event.stopPropagation(); scrollToMessage('${msg.replyTo.msgId}')"><div class="font-bold mb-0.5 text-[11px]">${escapeHtml(msg.replyTo.senderName || '')}</div><div class="truncate text-[11px] opacity-90">${pt}</div></div>`;
                   }
-                  
+
                   let tickHTML = '';
                   if (isMe) {
                       if (msg.synced === false) tickHTML = '<i class="fa-solid fa-clock text-blue-200 ml-1"></i>';
                       else if (msg.read) tickHTML = '<i class="fa-solid fa-check-double text-cyan-300 ml-1"></i>';
                       else tickHTML = '<i class="fa-solid fa-check-double text-blue-200 ml-1"></i>';
                   }
-                  
+
                   let senderNameHTML = '';
                   if (!isMe) senderNameHTML = `<div class="text-xs font-bold text-blue-400 mb-0.5">${escapeHtml(msg.senderName || 'Unknown')}</div>`;
-                  
+
                   bubble.innerHTML = `${quoteHTML}${senderNameHTML}${contentHTML}<div class="text-[10px] text-right mt-0.5 ${isMe ? 'text-blue-100/80' : 'text-gray-500'}">${timeStr}${tickHTML}</div>`;
                   wrapDiv.appendChild(bubble);
-                  
+
                   if (msg.reactions) {
                       const counts = {};
                       Object.values(msg.reactions).forEach(e => { counts[e] = (counts[e] || 0) + 1; });
@@ -1542,16 +1420,16 @@
                           bubble.appendChild(badge);
                       }
                   }
-                  
+
                   rowDiv.appendChild(indicator);
                   rowDiv.appendChild(wrapDiv);
                   container.appendChild(rowDiv);
-                  
+
                   attachMessageHandlers(wrapDiv, indicator, msg, msgId, isMe, msgType);
               });
-              
+
               checkTyping();
-              
+
               requestAnimationFrame(() => {
                   if (isFirstLoad || nearBottom) {
                       container.scrollTop = container.scrollHeight;
@@ -1563,7 +1441,7 @@
               });
               updateScrollButton();
           });
-        
+
         db.collection('chats').doc(chatId).onSnapshot(doc => {
             if (doc.exists && activeChatId === chatId) checkTyping();
         });
@@ -1572,24 +1450,17 @@
     function updateScrollButton() {
         const c = $('messagesContainer');
         const near = c.scrollHeight - c.scrollTop - c.clientHeight < 100;
-        if (near) {
-            $('scrollToBottomBtn').classList.add('hide');
-            $('scrollToBottomBtn').classList.remove('show');
-        } else {
-            $('scrollToBottomBtn').classList.remove('hide');
-            $('scrollToBottomBtn').classList.add('show');
-        }
+        if (near) { $('scrollToBottomBtn').classList.add('hide'); $('scrollToBottomBtn').classList.remove('show'); }
+        else { $('scrollToBottomBtn').classList.remove('hide'); $('scrollToBottomBtn').classList.add('show'); }
     }
 
-    // ============================================
     // MESSAGE HANDLERS
-    // ============================================
     function attachMessageHandlers(wrapEl, indicatorEl, msg, msgId, isMe, msgType) {
         let startX = 0, startY = 0, currentX = 0;
         let isDragging = false, isHorizontal = false, hasMoved = false;
         let longPressTimer = null;
         const THRESHOLD = 65, MAX_SWIPE = 90;
-        
+
         const onStart = (e) => {
             const t = e.touches ? e.touches[0] : e;
             startX = t.clientX; startY = t.clientY;
@@ -1653,15 +1524,12 @@
         wrapEl.addEventListener('mouseleave', () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } if (isDragging) onEnd(); });
     }
 
-    // ============================================
     // REACTION POPUP
-    // ============================================
     function showReactionPopup(el, msg, msgId, isMe, msgType) {
         popupTarget = { msg, msgId, isMe, msgType: msgType || 'text' };
         if (isMe) { $('popupDeleteBtn').classList.remove('hidden'); $('popupDeleteBtn').classList.add('flex'); }
         else { $('popupDeleteBtn').classList.add('hidden'); $('popupDeleteBtn').classList.remove('flex'); }
         $('popupCopyBtn').style.display = msgType === 'image' ? 'none' : 'flex';
-        
         const rp = $('reactionPopup');
         rp.classList.remove('hidden');
         const rect = el.getBoundingClientRect();
@@ -1715,9 +1583,7 @@
     document.addEventListener('click', (e) => { if (!$('reactionPopup').classList.contains('hidden') && !$('reactionPopup').contains(e.target)) hideReactionPopup(); });
     document.addEventListener('touchstart', (e) => { if (!$('reactionPopup').classList.contains('hidden') && !$('reactionPopup').contains(e.target)) hideReactionPopup(); }, { passive: true });
 
-    // ============================================
     // REPLY
-    // ============================================
     function activateReply(msg, msgId, msgType) {
         const type = msgType || msg.type || 'text';
         replyingTo = { msgId, text: type === 'image' ? '📷 ছবি' : (msg.text || ''), type, senderName: msg.senderName || 'Unknown', senderId: msg.senderId };
@@ -1764,13 +1630,11 @@
 
     window.viewOnceImage = async (chatId, msgId, data) => {
         const w = window.open();
-        w.document.write(`<html><head><title>ShohozChat</title><style>body{margin:0;background:#0a0f1c;display:flex;align-items:center;justify-content:center;height:100vh;}</style></head><body><img src="${data}" style="max-width:100%; max-height:100vh; display:block;"></body></html>`);
+        w.document.write(`<html><head><title>ShohojChat</title><style>body{margin:0;background:#0a0f1c;display:flex;align-items:center;justify-content:center;height:100vh;}</style></head><body><img src="${data}" style="max-width:100%; max-height:100vh; display:block;"></body></html>`);
         await db.collection('chats').doc(chatId).collection('messages').doc(msgId).update({ viewed: true, text: "" });
     };
 
-    // ============================================
     // SEND
-    // ============================================
     $('sendBtn').addEventListener('click', () => sendMessage('text'));
     $('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage('text'); } });
     $('messageInput').addEventListener('input', async () => {
@@ -1856,9 +1720,7 @@
         b.addEventListener('click', (e) => { $('messageInput').value += e.target.innerText; $('messageInput').focus(); });
     });
 
-    // ============================================
     // SETTINGS
-    // ============================================
     $('settingsBtn').addEventListener('click', () => { updateSettingsUI(); showScreen(settingsScreen); });
     $('backFromSettingsBtn').addEventListener('click', () => showScreen(inboxScreen));
     $('settingsLogoutBtn').addEventListener('click', logout);
@@ -1889,26 +1751,19 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `shohozchat-backup-${Date.now()}.json`;
+        a.download = `shohojchat-backup-${Date.now()}.json`;
         a.click();
         URL.revokeObjectURL(url);
         showToast('ব্যাকআপ ডাউনলোড হয়েছে!');
     });
 
-    $('settingsManageReels').addEventListener('click', () => {
-        showScreen(reelsScreen);
-        renderReels();
-    });
+    $('settingsManageReels').addEventListener('click', () => { showScreen(reelsScreen); renderReels(); });
 
-    // ============================================
     // REQUESTS
-    // ============================================
     $('requestsBtn').addEventListener('click', () => { loadRequestsList(); showScreen(requestsScreen); });
     $('backFromRequestsBtn').addEventListener('click', () => showScreen(inboxScreen));
 
-    // ============================================
     // CHAT MENU
-    // ============================================
     $('chatMenuBtn').addEventListener('click', (e) => {
         e.stopPropagation();
         const popup = $('chatMenuPopup');
@@ -1930,6 +1785,19 @@
     });
 
     $('chatHeaderInfo').addEventListener('click', openNicknameModal);
+</script>
+
+<!-- ============================================
+     SERVICE WORKER (PWA - APK support)
+     ============================================ -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                console.log('SW registered:', reg.scope);
+            }).catch(e => console.log('SW registration failed:', e));
+        });
+    }
 </script>
 </body>
 </html>
