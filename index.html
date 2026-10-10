@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShohojChat</title>
+    <title>ShohozChat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js"></script>
     <style>
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        
         html, body {
             height: 100%; margin: 0; padding: 0;
             overflow: hidden;
@@ -17,62 +17,34 @@
             color: white;
             overscroll-behavior: none;
         }
-        
-        /* ============================================
-           FIXED LAYOUT — no flexbox centering issues
-           ============================================ */
-        #app {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        @media (min-width: 768px) {
-            #app { padding: 16px; }
-        }
+        #app { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+        @media (min-width: 768px) { #app { padding: 16px; } }
         
         .screen {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
             overflow: hidden;
             background: rgba(19, 28, 46, 0.96);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        
         @media (min-width: 768px) {
             .screen {
-                position: relative;
-                inset: auto;
-                width: 100%;
-                max-width: 448px;
-                height: 92vh;
-                max-height: 800px;
+                position: relative; inset: auto;
+                width: 100%; max-width: 448px;
+                height: 92vh; max-height: 800px;
                 border-radius: 24px;
             }
         }
-        
         .screen.hidden { display: none !important; }
         
-        /* ============================================
-           MESSAGES AREA — the critical part
-           ============================================ */
         .messages-area {
-            flex: 1 1 0;
-            min-height: 0;
-            overflow-y: scroll;
-            overflow-x: hidden;
+            flex: 1 1 0; min-height: 0;
+            overflow-y: scroll; overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             padding: 14px 14px 20px 14px;
             position: relative;
-            scrollbar-width: thin;
-            scrollbar-color: #334155 transparent;
             background-color: #0a0f1c;
             background-image: 
                 radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.07) 0%, transparent 50%),
@@ -81,55 +53,146 @@
         .messages-area::-webkit-scrollbar { width: 6px; }
         .messages-area::-webkit-scrollbar-track { background: transparent; }
         .messages-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        
-        .messages-area > *:first-child { margin-top: 0 !important; }
-        .messages-area > *:last-child { margin-bottom: 0 !important; }
-        
-        /* Header / Footer must not shrink */
         .flex-shrink-0 { flex-shrink: 0; }
         
         /* ============================================
-           MESSAGE BUBBLES
+           REELS - Universal Video Player
            ============================================ */
-        .msg-row {
-            display: flex;
+        #reelsContainer {
+            flex: 1 1 0; min-height: 0;
+            overflow-y: scroll; overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            background: #000;
+            scrollbar-width: none;
+            position: relative;
+        }
+        #reelsContainer::-webkit-scrollbar { display: none; }
+
+        .reel-item {
+            width: 100%; height: 100%;
+            scroll-snap-align: start; scroll-snap-stop: always;
+            position: relative; overflow: hidden;
+            background: #000; flex-shrink: 0;
+        }
+
+        .reel-item video {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            background: #000;
+            display: block;
+        }
+
+        .reel-item iframe {
+            position: absolute;
+            top: -60px;
+            left: 0;
             width: 100%;
-            margin-bottom: 6px;
-            position: relative;
+            height: calc(100% + 120px);
+            border: none;
+            background: #000;
         }
-        .msg-row.justify-end { justify-content: flex-end; }
-        .msg-row.justify-start { justify-content: flex-start; }
-        
-        .msg-wrap {
-            position: relative;
-            max-width: 82%;
+
+        .reel-number {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(10px);
+            color: white; font-size: 11px; font-weight: 700;
+            padding: 4px 10px; border-radius: 20px;
+            z-index: 15; pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .reel-sound-btn {
+            position: absolute;
+            bottom: 70px;
+            right: 14px;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            z-index: 15;
             cursor: pointer;
-            user-select: none;
-            touch-action: pan-y;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: transform 0.15s;
         }
-        
-        .bubble-me {
-            background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
-            border-radius: 18px 18px 4px 18px;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-            word-wrap: break-word;
-            overflow-wrap: anywhere;
-            white-space: pre-wrap;
+        .reel-sound-btn:active { transform: scale(0.9); }
+        .reel-sound-btn.on { background: rgba(59,130,246,0.7); }
+
+        .reel-open-btn {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 24px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: transform 0.15s;
+            white-space: nowrap;
         }
-        .bubble-other {
-            background: #1e293b;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 18px 18px 18px 4px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            word-wrap: break-word;
-            overflow-wrap: anywhere;
-            white-space: pre-wrap;
+        .reel-open-btn:active { transform: translateX(-50%) scale(0.95); }
+
+        .swipe-hint {
+            position: absolute; left: 50%; bottom: 80px;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);
+            color: white; font-size: 12px;
+            padding: 8px 16px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px;
+            z-index: 15; animation: fadeUpDown 3s ease-in-out infinite;
+            border: 1px solid rgba(255,255,255,0.1); pointer-events: none;
         }
-        
-        /* ============================================
-           OTHER UI ELEMENTS
-           ============================================ */
+        @keyframes fadeUpDown {
+            0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .reels-empty {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 32px; text-align: center; background: #0a0f1c;
+        }
+        .reel-loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid #334155; border-top-color: #ef4444;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .reel-play-overlay {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10; cursor: pointer;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .reel-play-overlay.show {
+            opacity: 1;
+            background: rgba(0,0,0,0.3);
+        }
+        .reel-play-overlay i {
+            font-size: 60px;
+            color: rgba(255,255,255,0.9);
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        /* OTHER */
         @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } }
         .status-online { background: #22c55e; animation: pulse 2s infinite; }
         .status-offline { background: #64748b; }
@@ -172,6 +235,30 @@
         }
         
         .input-focus:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
+        
+        .msg-row { display: flex; width: 100%; margin-bottom: 6px; position: relative; }
+        .msg-row.justify-end { justify-content: flex-end; }
+        .msg-row.justify-start { justify-content: flex-start; }
+        
+        .msg-wrap {
+            position: relative; max-width: 82%; cursor: pointer;
+            user-select: none; touch-action: pan-y;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .bubble-me {
+            background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+            word-wrap: break-word; overflow-wrap: anywhere; white-space: pre-wrap;
+        }
+        .bubble-other {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            word-wrap: break-word; overflow-wrap: anywhere; white-space: pre-wrap;
+        }
         
         .swipe-indicator {
             position: absolute; left: 8px; top: 50%;
@@ -230,7 +317,6 @@
 <body>
 
 <div id="app">
-
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
@@ -242,7 +328,7 @@
             <div class="bg-gradient-to-tr from-blue-500 to-purple-600 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform rotate-3">
                 <i class="fa-solid fa-comments text-5xl text-white"></i>
             </div>
-            <h1 class="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohojChat</h1>
+            <h1 class="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohozChat</h1>
             <p class="text-gray-400 mb-8 text-sm">সহজে কথা বলুন, বন্ধুদের সাথে যুক্ত থাকুন</p>
             <div class="relative mb-3">
                 <i class="fa-solid fa-envelope absolute left-4 top-4 text-gray-500"></i>
@@ -262,10 +348,13 @@
     <div id="inboxScreen" class="screen hidden">
         <div class="p-5 flex justify-between items-center border-b border-slate-700/50 flex-shrink-0">
             <div>
-                <h2 class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohojChat</h2>
+                <h2 class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">ShohozChat</h2>
                 <p class="text-xs text-gray-500 mt-0.5" id="welcomeText">স্বাগতম!</p>
             </div>
             <div class="flex gap-2">
+                <button id="reelsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-pink-500/20 text-pink-400 w-10 h-10 rounded-xl transition border border-pink-500/30" title="ভিডিও দেখুন">
+                    <i class="fa-solid fa-circle-play"></i>
+                </button>
                 <button id="requestsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-yellow-500/20 text-yellow-400 w-10 h-10 rounded-xl transition border border-yellow-500/30 relative">
                     <i class="fa-solid fa-user-plus"></i>
                     <span id="requestsBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -290,6 +379,26 @@
         </div>
     </div>
 
+    <!-- REELS SCREEN -->
+    <div id="reelsScreen" class="screen hidden" style="background: #000;">
+        <div class="p-4 flex items-center justify-between border-b border-slate-700/50 flex-shrink-0" style="background: rgba(10, 15, 28, 0.95); backdrop-filter: blur(20px); z-index: 20;">
+            <button id="backFromReelsBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-play text-pink-400 text-lg"></i>
+                <h2 class="font-bold text-lg text-white">ভিডিও</h2>
+            </div>
+            <div class="flex gap-2">
+                <button id="reelRefreshBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button id="reelAddBtn" class="btn-press w-9 h-9 rounded-full bg-pink-500/20 hover:bg-pink-500/30 flex items-center justify-center text-pink-400 transition border border-pink-500/30">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div id="reelsContainer"></div>
+    </div>
+
     <!-- CHAT ROOM -->
     <div id="chatRoomScreen" class="screen hidden">
         <div class="p-4 flex items-center gap-3 border-b border-slate-700/50 bg-slate-900/70 backdrop-blur-md flex-shrink-0" style="position: relative; z-index: 20;">
@@ -303,14 +412,10 @@
             </div>
             <button id="chatMenuBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
-
-        <!-- Messages area -->
         <div id="messagesContainer" class="messages-area"></div>
-        
         <button id="scrollToBottomBtn" class="scroll-btn hide fixed bottom-24 right-4 w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 hover:bg-slate-700 transition z-30" style="display: flex;">
             <i class="fa-solid fa-arrow-down"></i>
         </button>
-
         <div id="replyPreview" class="hidden reply-preview px-3 pt-3 bg-slate-900/80 backdrop-blur border-t border-slate-700/50 flex-shrink-0">
             <div class="flex items-center gap-3 bg-slate-800/80 rounded-xl p-2 border-l-4 border-blue-500">
                 <i class="fa-solid fa-reply text-blue-400"></i>
@@ -321,24 +426,16 @@
                 <button id="cancelReplyBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400 flex-shrink-0"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </div>
-
         <div id="emojiPicker" class="hidden p-3 bg-slate-800/95 backdrop-blur border-t border-slate-700 flex flex-wrap gap-1 justify-center flex-shrink-0">
             <span class="emoji-btn">😀</span><span class="emoji-btn">😂</span><span class="emoji-btn">🥰</span><span class="emoji-btn">😎</span><span class="emoji-btn">😭</span><span class="emoji-btn">😡</span><span class="emoji-btn">🤔</span><span class="emoji-btn">😴</span>
             <span class="emoji-btn">👍</span><span class="emoji-btn">🙏</span><span class="emoji-btn">👏</span><span class="emoji-btn">💪</span><span class="emoji-btn">❤️</span><span class="emoji-btn">🔥</span><span class="emoji-btn">✨</span><span class="emoji-btn">💯</span>
         </div>
-
         <div class="p-3 border-t border-slate-700/50 bg-slate-900/70 backdrop-blur-md flex gap-2 items-end flex-shrink-0">
             <input type="file" id="chatImageInput" accept="image/*" class="hidden">
-            <button id="chatImageBtn" class="btn-press text-gray-400 hover:text-blue-400 w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center text-lg flex-shrink-0">
-                <i class="fa-solid fa-image"></i>
-            </button>
-            <button id="emojiToggle" class="btn-press text-gray-400 hover:text-yellow-400 w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center text-lg flex-shrink-0">
-                <i class="fa-regular fa-face-smile"></i>
-            </button>
+            <button id="chatImageBtn" class="btn-press text-gray-400 hover:text-blue-400 w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid fa-image"></i></button>
+            <button id="emojiToggle" class="btn-press text-gray-400 hover:text-yellow-400 w-10 h-10 rounded-full hover:bg-slate-800 transition flex items-center justify-center text-lg flex-shrink-0"><i class="fa-regular fa-face-smile"></i></button>
             <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." class="input-focus flex-1 min-w-0 bg-slate-800/70 border border-slate-700 rounded-3xl px-5 py-3 text-white placeholder-gray-500 focus:outline-none transition text-sm">
-            <button id="sendBtn" class="btn-press bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full hover:from-blue-500 hover:to-purple-500 transition flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
-                <i class="fa-solid fa-paper-plane text-base"></i>
-            </button>
+            <button id="sendBtn" class="btn-press bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full hover:from-blue-500 hover:to-purple-500 transition flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0"><i class="fa-solid fa-paper-plane text-base"></i></button>
         </div>
     </div>
 
@@ -359,16 +456,6 @@
                 </div>
                 <button id="settingsEditProfileBtn" class="btn-press w-9 h-9 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-pen"></i></button>
             </div>
-
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">অ্যাকাউন্ট</p>
-            <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
-                <div class="settings-item" id="settingsProfileItem">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-user text-blue-400"></i></div>
-                    <div class="flex-1"><p class="text-white font-medium">প্রোফাইল সম্পাদনা</p><p class="text-xs text-gray-500">নাম ও ছবি পরিবর্তন</p></div>
-                    <i class="fa-solid fa-chevron-right text-gray-600"></i>
-                </div>
-            </div>
-
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">চ্যাট</p>
             <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
                 <div class="settings-item" id="settingsClearAllChats">
@@ -382,20 +469,18 @@
                     <i class="fa-solid fa-chevron-right text-gray-600"></i>
                 </div>
             </div>
-
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">অন্যান্য</p>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">ভিডিও</p>
             <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
-                <div class="settings-item" id="settingsAbout">
-                    <div class="w-10 h-10 rounded-xl bg-slate-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-circle-info text-slate-400"></i></div>
-                    <div class="flex-1"><p class="text-white font-medium">ShohojChat সম্পর্কে</p><p class="text-xs text-gray-500">ভার্সন 1.0</p></div>
+                <div class="settings-item" id="settingsManageReels">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-circle-play text-pink-400"></i></div>
+                    <div class="flex-1"><p class="text-white font-medium">ভিডিও ম্যানেজ করুন</p><p class="text-xs text-gray-500">ভিডিও যোগ, মুছুন বা দেখুন</p></div>
                     <i class="fa-solid fa-chevron-right text-gray-600"></i>
                 </div>
             </div>
-
             <button id="settingsLogoutBtn" class="btn-press w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 py-3.5 rounded-2xl font-bold transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-right-from-bracket"></i> লগআউট করুন
             </button>
-            <p class="text-center text-xs text-gray-600 mt-6 mb-4">ShohojChat v1.0 • Made with ❤️</p>
+            <p class="text-center text-xs text-gray-600 mt-6 mb-4">ShohozChat v1.0 • Made with ❤️</p>
         </div>
     </div>
 
@@ -406,7 +491,7 @@
             <h2 class="font-bold text-xl text-white">মেসেজ রিকোয়েস্ট</h2>
         </div>
         <div class="p-4 bg-yellow-500/10 border-b border-yellow-500/20 flex-shrink-0">
-            <p class="text-xs text-yellow-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>এখানে অপরিচিত মানুষের পাঠানো চ্যাট থাকে। Accept করলে চ্যাট শুরু হবে।</p>
+            <p class="text-xs text-yellow-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>এখানে অপরিচিত মানুষের পাঠানো চ্যাট থাকে।</p>
         </div>
         <div id="requestsList" class="messages-area" style="background: #0a0f1c;">
             <div class="flex flex-col items-center justify-center h-full text-center px-8">
@@ -414,7 +499,6 @@
                     <i class="fa-solid fa-user-plus text-4xl text-slate-600"></i>
                 </div>
                 <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
-                <p class="text-gray-600 text-sm mt-1">নতুন চ্যাট রিকোয়েস্ট এখানে আসবে</p>
             </div>
         </div>
     </div>
@@ -438,6 +522,31 @@
         </div>
     </div>
 
+    <!-- ADD REEL MODAL -->
+    <div id="addReelModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm items-center justify-center z-50 p-4">
+        <div class="modal-anim p-6 rounded-3xl w-full max-w-sm shadow-2xl" style="background: rgba(19, 28, 46, 0.96); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400">ভিডিও যোগ করুন</h3>
+                <button id="closeAddReelBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-3 mb-4">
+                <p class="text-xs text-pink-300">
+                    <i class="fa-solid fa-circle-info mr-1"></i>
+                    যেকোনো ভিডিও লিংক দিন:<br>
+                    <span class="text-pink-200 text-[11px]">YouTube • Instagram • TikTok • Facebook • Vimeo • m3u8 • mp4</span>
+                </p>
+            </div>
+            <label class="block text-sm text-gray-400 mb-1.5">লিংক</label>
+            <input type="text" id="newReelUrl" placeholder="https://..." class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-sm">
+            <label class="block text-sm text-gray-400 mb-1.5">একাধিক লিংক (প্রতি লাইনে একটি)</label>
+            <textarea id="newReelUrlsBulk" rows="4" placeholder="https://youtube.com/shorts/...&#10;https://instagram.com/reel/...&#10;https://example.com/video.m3u8&#10;https://example.com/video.mp4" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-xs"></textarea>
+            <div class="flex gap-2">
+                <button id="saveReelBtn" class="btn-press flex-1 bg-gradient-to-r from-pink-600 to-purple-600 text-white py-3 rounded-xl font-bold transition">যোগ করুন</button>
+                <button id="closeAddReelBtn2" class="btn-press bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold transition">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CHAT MENU POPUP -->
     <div id="chatMenuPopup" class="hidden fixed z-50">
         <div class="rounded-2xl shadow-2xl p-2 flex flex-col gap-1 min-w-[180px]" style="background: rgba(19, 28, 46, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);">
@@ -453,13 +562,10 @@
                 <h3 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">নিকনেম সেট করুন</h3>
                 <button id="closeNicknameBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
-                <p class="text-xs text-blue-300"><i class="fa-solid fa-circle-info mr-1"></i>এই নিকনেম আপনি <b>এবং আপনার বন্ধু</b> দুজনেই দেখবেন।</p>
-            </div>
             <label class="block text-sm text-gray-400 mb-1.5">বন্ধুর আসল নাম</label>
             <div class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-gray-400 text-sm" id="realNameDisplay">-</div>
             <label class="block text-sm text-gray-400 mb-1.5">আপনি যা নামে ডাকতে চান</label>
-            <input type="text" id="nicknameInput" placeholder="যেমন: ভাইয়া, বেস্টি" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-5 text-white focus:outline-none transition">
+            <input type="text" id="nicknameInput" placeholder="যেমন: ভাইয়া" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-5 text-white focus:outline-none transition">
             <div class="flex gap-2">
                 <button id="saveNicknameBtn" class="btn-press flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold transition">সেভ করুন</button>
                 <button id="clearNicknameBtn" class="btn-press bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold transition"><i class="fa-solid fa-rotate-left"></i></button>
@@ -493,15 +599,16 @@
             </div>
         </div>
     </div>
-
-</div><!-- /#app -->
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
+    // ============================================
     // ⚠️ আপনার ফায়ারবেস কনফিগ এখানে বসান
+    // ============================================
     const firebaseConfig = {
   apiKey: "AIzaSyDVxS9IYesZFXQP92U_Flux2cAOTxN2rnU",
   authDomain: "shohojchat-53146.firebaseapp.com",
@@ -518,23 +625,21 @@
 
     const $ = (id) => document.getElementById(id);
     const loginScreen = $('loginScreen'), inboxScreen = $('inboxScreen'), chatRoomScreen = $('chatRoomScreen');
-    const settingsScreen = $('settingsScreen'), requestsScreen = $('requestsScreen');
-    const profileModal = $('profileModal'), nicknameModal = $('nicknameModal');
+    const settingsScreen = $('settingsScreen'), requestsScreen = $('requestsScreen'), reelsScreen = $('reelsScreen');
+    const profileModal = $('profileModal'), nicknameModal = $('nicknameModal'), addReelModal = $('addReelModal');
 
     let currentUser = null;
     let activeChatId = null, activePartnerId = null;
     let activeChatData = null, activePartnerData = null;
     let unsubscribeMessages = null, unsubscribePartnerStatus = null, unsubscribeChatDoc = null, unsubscribeChatsList = null;
+    let unsubscribeReels = null;
     let userProfile = {};
     let isOnline = navigator.onLine;
     let typingTimeout = null;
     let replyingTo = null, popupTarget = null;
     let heartbeatInterval = null;
-    
-    // Scroll preservation
-    let wasAtBottom = true;
-    let savedScrollTop = 0;
-    let savedScrollHeight = 0;
+    let allReels = [];
+    let reelsLoaded = false;
 
     // ============================================
     // ONLINE / OFFLINE
@@ -593,7 +698,7 @@
         setTimeout(() => t.remove(), 2000);
     }
     function showScreen(screen) {
-        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen].forEach(s => s.classList.add('hidden'));
+        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen].forEach(s => s.classList.add('hidden'));
         screen.classList.remove('hidden');
     }
 
@@ -646,11 +751,310 @@
             showScreen(inboxScreen);
             loadChatList();
             setupRequestsListener();
+            setupReelsListener();
         } else {
             currentUser = null;
             showScreen(loginScreen);
             $('authMessage').innerText = '';
             if (heartbeatInterval) clearInterval(heartbeatInterval);
+        }
+    });
+
+    // ============================================
+    // UNIVERSAL VIDEO URL DETECTION
+    // ============================================
+    function detectVideoSource(url) {
+        if (!url) return null;
+        const u = url.trim();
+
+        // Direct video files
+        if (/\.m3u8(\?|#|$)/i.test(u)) return { type: 'hls', url: u };
+        if (/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(u)) return { type: 'video', url: u };
+
+        // YouTube
+        let m = u.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+        if (m) return {
+            type: 'iframe',
+            url: `https://www.youtube.com/embed/${m[1]}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${m[1]}&rel=0&modestbranding=1`,
+            original: u
+        };
+
+        // Vimeo
+        m = u.match(/vimeo\.com\/(\d+)/);
+        if (m) return {
+            type: 'iframe',
+            url: `https://player.vimeo.com/video/${m[1]}?autoplay=1&muted=1&loop=1`,
+            original: u
+        };
+
+        // Instagram
+        m = u.match(/instagram\.com\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/);
+        if (m) return {
+            type: 'iframe',
+            url: `https://www.instagram.com/reel/${m[1]}/embed/`,
+            original: u
+        };
+
+        // TikTok
+        m = u.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+        if (m) return {
+            type: 'iframe',
+            url: `https://www.tiktok.com/embed/v2/${m[1]}?autoplay=1&loop=1`,
+            original: u
+        };
+
+        // Facebook
+        if (/facebook\.com|fb\.watch/.test(u)) return {
+            type: 'iframe',
+            url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}&show_text=0&autoplay=1`,
+            original: u
+        };
+
+        // Unknown - try as direct video
+        return { type: 'video', url: u, original: u };
+    }
+
+    function getHostName(url) {
+        try { return new URL(url).hostname.replace('www.', ''); }
+        catch(e) { return 'link'; }
+    }
+
+    // ============================================
+    // REELS SYSTEM
+    // ============================================
+    function setupReelsListener() {
+        if (unsubscribeReels) unsubscribeReels();
+        unsubscribeReels = db.collection('reels')
+            .orderBy('createdAt', 'asc')
+            .onSnapshot(snapshot => {
+                allReels = [];
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    allReels.push({ id: doc.id, ...d });
+                });
+                reelsLoaded = true;
+                if (!$('reelsScreen').classList.contains('hidden')) {
+                    renderReels();
+                }
+            }, err => console.log('Reels listener error:', err));
+    }
+
+    function renderReels() {
+        const container = $('reelsContainer');
+        if (container._hlsPlayers) {
+            container._hlsPlayers.forEach(h => { try { h.destroy(); } catch(e){} });
+        }
+        container._hlsPlayers = [];
+        if (container._observer) {
+            container._observer.disconnect();
+            container._observer = null;
+        }
+        container.innerHTML = '';
+
+        if (!reelsLoaded) {
+            container.innerHTML = `
+                <div class="reels-empty">
+                    <div class="reel-loading-spinner" style="margin-bottom:16px;"></div>
+                    <p class="text-gray-400">ভিডিও লোড হচ্ছে...</p>
+                </div>`;
+            return;
+        }
+
+        if (allReels.length === 0) {
+            container.innerHTML = `
+                <div class="reels-empty">
+                    <div class="w-24 h-24 bg-pink-500/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-circle-play text-4xl text-pink-400"></i>
+                    </div>
+                    <p class="text-white font-semibold mb-2">এখনো কোনো ভিডিও যোগ করা হয়নি</p>
+                    <p class="text-gray-500 text-sm mb-4">YouTube, Instagram, TikTok, Facebook, Vimeo, m3u8, mp4 — যেকোনো লিংক দিন</p>
+                    <button onclick="document.getElementById('reelAddBtn').click()" class="btn-press bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold transition">
+                        <i class="fa-solid fa-plus mr-2"></i>ভিডিও যোগ করুন
+                    </button>
+                </div>`;
+            return;
+        }
+
+        allReels.forEach((reel, idx) => {
+            const source = detectVideoSource(reel.url);
+            if (!source) return;
+
+            const item = document.createElement('div');
+            item.className = 'reel-item';
+            item.dataset.index = idx;
+            item.dataset.type = source.type;
+
+            const host = getHostName(source.original);
+            const isVideoTag = (source.type === 'video' || source.type === 'hls');
+
+            if (isVideoTag) {
+                item.innerHTML = `
+                    <div class="reel-number">${idx + 1} / ${allReels.length}</div>
+                    <video id="vid-${idx}" playsinline loop muted preload="auto" webkit-playsinline></video>
+                    <div class="reel-play-overlay" data-play="${idx}">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                    <div class="reel-sound-btn" data-idx="${idx}">
+                        <i class="fa-solid fa-volume-xmark"></i>
+                    </div>
+                    <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')">
+                        <i class="fa-solid fa-link"></i> ${host}
+                    </button>`;
+            } else {
+                item.innerHTML = `
+                    <div class="reel-number">${idx + 1} / ${allReels.length}</div>
+                    <iframe src="${source.url}" frameborder="0" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
+                    <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')">
+                        <i class="fa-solid fa-link"></i> ${host}
+                    </button>`;
+            }
+            container.appendChild(item);
+
+            // Setup video players
+            if (isVideoTag) {
+                const video = item.querySelector('video');
+                const playOverlay = item.querySelector('.reel-play-overlay');
+
+                if (source.type === 'hls') {
+                    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                        video.src = source.url;
+                    } else if (window.Hls && Hls.isSupported()) {
+                        const hls = new Hls({ enableWorker: true });
+                        hls.loadSource(source.url);
+                        hls.attachMedia(video);
+                        container._hlsPlayers.push(hls);
+                    } else {
+                        video.src = source.url;
+                    }
+                } else {
+                    video.src = source.url;
+                }
+
+                video.muted = true;
+                video.play().catch(() => {});
+
+                // Tap to play/pause
+                playOverlay.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play().catch(()=>{});
+                        playOverlay.classList.remove('show');
+                    } else {
+                        video.pause();
+                        playOverlay.querySelector('i').className = 'fa-solid fa-play';
+                        playOverlay.classList.add('show');
+                    }
+                });
+
+                video.addEventListener('play', () => {
+                    playOverlay.classList.remove('show');
+                });
+                video.addEventListener('pause', () => {
+                    playOverlay.querySelector('i').className = 'fa-solid fa-play';
+                    playOverlay.classList.add('show');
+                });
+            }
+        });
+
+        setupReelObserver();
+
+        if (allReels.length > 1) {
+            const hint = document.createElement('div');
+            hint.className = 'swipe-hint';
+            hint.innerHTML = '<i class="fa-solid fa-arrow-up"></i> <span>উপরে swipe করুন</span>';
+            container.appendChild(hint);
+            setTimeout(() => hint.remove(), 5000);
+        }
+    }
+
+    function setupReelObserver() {
+        const container = $('reelsContainer');
+        if (container._observer) container._observer.disconnect();
+
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const item = entry.target;
+                const video = item.querySelector('video');
+                if (!video) return;
+                if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+                    video.currentTime = 0;
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
+                }
+            });
+        }, { root: container, threshold: [0, 0.6, 1] });
+
+        container.querySelectorAll('.reel-item').forEach(el => obs.observe(el));
+        container._observer = obs;
+    }
+
+    // Sound toggle
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.reel-sound-btn');
+        if (!btn) return;
+        const item = btn.closest('.reel-item');
+        const video = item.querySelector('video');
+        if (!video) return;
+        video.muted = !video.muted;
+        btn.classList.toggle('on', !video.muted);
+        btn.innerHTML = video.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+    });
+
+    // Add reels
+    async function addNewReels(urlsList) {
+        const cleaned = urlsList.map(u => u.trim()).filter(u => u && /^https?:\/\//i.test(u));
+        if (cleaned.length === 0) {
+            alert('কোনো সঠিক লিংক পাওয়া যায়নি! http:// বা https:// দিয়ে শুরু হতে হবে।');
+            return 0;
+        }
+        const existing = new Set(allReels.map(r => r.url));
+        const toAdd = cleaned.filter(u => !existing.has(u));
+        if (toAdd.length === 0) {
+            alert('এই লিংকগুলো ইতিমধ্যে যোগ করা আছে!');
+            return 0;
+        }
+        const batch = db.batch();
+        toAdd.forEach(url => {
+            const ref = db.collection('reels').doc();
+            batch.set(ref, {
+                url: url,
+                addedBy: currentUser.uid,
+                addedByName: userProfile.display_name || currentUser.email.split('@')[0],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        await batch.commit();
+        return toAdd.length;
+    }
+
+    // Reels nav
+    $('reelsBtn').addEventListener('click', () => { showScreen(reelsScreen); renderReels(); });
+    $('backFromReelsBtn').addEventListener('click', () => showScreen(inboxScreen));
+    $('reelRefreshBtn').addEventListener('click', () => { showToast('রিফ্রেশ হচ্ছে...'); renderReels(); });
+    $('reelAddBtn').addEventListener('click', () => {
+        $('newReelUrl').value = '';
+        $('newReelUrlsBulk').value = '';
+        addReelModal.classList.remove('hidden');
+        addReelModal.classList.add('flex');
+    });
+    $('closeAddReelBtn').addEventListener('click', () => { addReelModal.classList.add('hidden'); addReelModal.classList.remove('flex'); });
+    $('closeAddReelBtn2').addEventListener('click', () => { addReelModal.classList.add('hidden'); addReelModal.classList.remove('flex'); });
+    $('saveReelBtn').addEventListener('click', async () => {
+        const single = $('newReelUrl').value.trim();
+        const bulk = $('newReelUrlsBulk').value.trim();
+        const urls = [];
+        if (single) urls.push(single);
+        if (bulk) bulk.split(/\n+/).forEach(l => urls.push(l));
+        if (urls.length === 0) return alert('অন্তত একটি লিংক দিন!');
+        $('saveReelBtn').innerText = 'যোগ হচ্ছে...';
+        $('saveReelBtn').disabled = true;
+        const added = await addNewReels(urls);
+        $('saveReelBtn').innerText = 'যোগ করুন';
+        $('saveReelBtn').disabled = false;
+        if (added > 0) {
+            showToast(`${added}টি ভিডিও যোগ হয়েছে!`);
+            addReelModal.classList.add('hidden');
+            addReelModal.classList.remove('flex');
         }
     });
 
@@ -671,12 +1075,10 @@
         profileModal.classList.add('flex');
     }
     function closeProfileModal() { profileModal.classList.add('hidden'); profileModal.classList.remove('flex'); }
-
     $('closeProfileBtn').addEventListener('click', closeProfileModal);
     $('closeProfileBtn2').addEventListener('click', closeProfileModal);
     $('avatarClickArea').addEventListener('click', () => $('avatarInput').click());
     $('settingsEditProfileBtn').addEventListener('click', openProfileModal);
-    $('settingsProfileItem').addEventListener('click', openProfileModal);
 
     $('avatarInput').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -809,14 +1211,11 @@
                   if (data.status === 'pending') return;
                   acceptedChats.push({ id: doc.id, data });
               });
-              
-              // Sort by updated_at
               acceptedChats.sort((a, b) => {
                   const at = a.data.updated_at ? a.data.updated_at.toMillis() : 0;
                   const bt = b.data.updated_at ? b.data.updated_at.toMillis() : 0;
                   return bt - at;
               });
-              
               list.innerHTML = '';
               if (acceptedChats.length === 0) {
                   list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
@@ -899,7 +1298,7 @@
     }
 
     // ============================================
-    // MESSAGE REQUESTS
+    // REQUESTS
     // ============================================
     function setupRequestsListener() {
         db.collection('chats')
@@ -934,7 +1333,6 @@
                           <i class="fa-solid fa-user-plus text-4xl text-slate-600"></i>
                       </div>
                       <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
-                      <p class="text-gray-600 text-sm mt-1">নতুন চ্যাট রিকোয়েস্ট এখানে আসবে</p>
                   </div>`;
                   return;
               }
@@ -1008,8 +1406,6 @@
         activePartnerId = partnerId;
         cancelReply(); hideReactionPopup();
         showScreen(chatRoomScreen);
-        // Reset scroll state
-        wasAtBottom = true;
         $('messagesContainer').dataset.loaded = '';
         
         if (unsubscribePartnerStatus) unsubscribePartnerStatus();
@@ -1019,7 +1415,6 @@
             const u = activePartnerData;
             if (u.photo_url) $('chatPartnerAvatar').innerHTML = `<img src="${u.photo_url}" class="w-full h-full object-cover">`;
             else $('chatPartnerAvatar').innerText = u.display_name ? u.display_name[0].toUpperCase() : '?';
-            
             let st = "অফলাইন", dc = "status-offline";
             if (u.is_online) { st = "অনলাইন"; dc = "status-online"; }
             else if (u.last_seen) st = formatOfflineTime(u.last_seen.toDate());
@@ -1055,7 +1450,7 @@
     });
 
     // ============================================
-    // LOAD MESSAGES — with scroll preservation
+    // LOAD MESSAGES
     // ============================================
     function loadMessages(chatId) {
         if (unsubscribeMessages) unsubscribeMessages();
@@ -1063,8 +1458,6 @@
           .orderBy('timestamp', 'asc').limit(100)
           .onSnapshot(snapshot => {
               const container = $('messagesContainer');
-              
-              // Save scroll state BEFORE re-render
               const prevScrollHeight = container.scrollHeight;
               const prevScrollTop = container.scrollTop;
               const isFirstLoad = (container.dataset.loaded !== chatId);
@@ -1159,19 +1552,15 @@
               
               checkTyping();
               
-              // RESTORE SCROLL POSITION (this fixes the "cut" issue)
               requestAnimationFrame(() => {
                   if (isFirstLoad || nearBottom) {
                       container.scrollTop = container.scrollHeight;
                       container.dataset.loaded = chatId;
                   } else {
-                      // Keep the same view — content grew, so adjust scrollTop
                       const newScrollHeight = container.scrollHeight;
                       container.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
                   }
               });
-              
-              // Show/hide scroll button
               updateScrollButton();
           });
         
@@ -1346,9 +1735,6 @@
         if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('highlight-target'); setTimeout(() => el.classList.remove('highlight-target'), 1500); }
     };
 
-    // ============================================
-    // HELPERS
-    // ============================================
     async function checkTyping() {
         if (!activeChatId || !activePartnerId) return;
         const d = await db.collection('chats').doc(activeChatId).get();
@@ -1368,9 +1754,6 @@
         return date.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    // ============================================
-    // SCROLL EVENTS
-    // ============================================
     $('messagesContainer').addEventListener('scroll', updateScrollButton);
     $('scrollToBottomBtn').addEventListener('click', () => {
         const c = $('messagesContainer');
@@ -1381,7 +1764,7 @@
 
     window.viewOnceImage = async (chatId, msgId, data) => {
         const w = window.open();
-        w.document.write(`<html><head><title>ShohojChat</title><style>body{margin:0;background:#0a0f1c;display:flex;align-items:center;justify-content:center;height:100vh;}</style></head><body><img src="${data}" style="max-width:100%; max-height:100vh; display:block;"></body></html>`);
+        w.document.write(`<html><head><title>ShohozChat</title><style>body{margin:0;background:#0a0f1c;display:flex;align-items:center;justify-content:center;height:100vh;}</style></head><body><img src="${data}" style="max-width:100%; max-height:100vh; display:block;"></body></html>`);
         await db.collection('chats').doc(chatId).collection('messages').doc(msgId).update({ viewed: true, text: "" });
     };
 
@@ -1455,15 +1838,12 @@
             if (type === 'text') {
                 $('messageInput').value = '';
                 $('emojiPicker').classList.add('hidden');
-                // ⚡ KEY FIX: keep focus so keyboard stays open and text bar remains visible
                 setTimeout(() => $('messageInput').focus(), 50);
             }
             cancelReply();
-            // Scroll to bottom after sending
             requestAnimationFrame(() => {
                 const c = $('messagesContainer');
                 c.scrollTop = c.scrollHeight;
-                wasAtBottom = true;
             });
         } catch (err) {
             if(!isOnline) alert("আপনি অফলাইনে আছেন। ইন্টারনেট এলে মেসেজ অটো সেন্ড হবে।");
@@ -1471,7 +1851,6 @@
         }
     }
 
-    // Emoji
     $('emojiToggle').addEventListener('click', () => $('emojiPicker').classList.toggle('hidden'));
     document.querySelectorAll('.emoji-btn').forEach(b => {
         b.addEventListener('click', (e) => { $('messageInput').value += e.target.innerText; $('messageInput').focus(); });
@@ -1510,14 +1889,15 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `shohojchat-backup-${Date.now()}.json`;
+        a.download = `shohozchat-backup-${Date.now()}.json`;
         a.click();
         URL.revokeObjectURL(url);
         showToast('ব্যাকআপ ডাউনলোড হয়েছে!');
     });
 
-    $('settingsAbout').addEventListener('click', () => {
-        alert('ShohojChat v1.0\n\nএকটি সহজ চ্যাট অ্যাপ\n\nMade with ❤️ in Bangladesh');
+    $('settingsManageReels').addEventListener('click', () => {
+        showScreen(reelsScreen);
+        renderReels();
     });
 
     // ============================================
@@ -1540,7 +1920,7 @@
     $('menuNicknameBtn').addEventListener('click', () => { $('chatMenuPopup').classList.add('hidden'); openNicknameModal(); });
     $('menuClearChatBtn').addEventListener('click', async () => {
         $('chatMenuPopup').classList.add('hidden');
-        if (!confirm('এই চ্যাটের সব মেসেজ ডিলিট হয়ে যাবে। আপনি নিশ্চিত?')) return;
+        if (!confirm('এই চ্যাটের সব মেসেজ ডিলিট হয়ে যাবে?')) return;
         const msgs = await db.collection('chats').doc(activeChatId).collection('messages').get();
         for (const m of msgs.docs) await m.ref.delete();
         showToast('চ্যাট ক্লিয়ার হয়েছে');
