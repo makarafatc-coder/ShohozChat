@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShohojChat</title>
-    <meta name="theme-color" content="#3b82f6">
+    <title>Notes</title>
+    <meta name="theme-color" content="#0f766e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ShohojChat">
+    <meta name="apple-mobile-web-app-title" content="Notes">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -45,6 +45,232 @@
         }
         .screen.hidden { display: none !important; }
         
+        /* ============================================
+           NOTES APP - Modern Premium Design
+           ============================================ */
+        #notesScreen {
+            background: #f8f8f5;
+            color: #1a1a1a;
+        }
+        @media (min-width: 768px) { #notesScreen { border-radius: 24px; } }
+
+        .notes-header {
+            background: linear-gradient(180deg, #ffffff 0%, #fdfdfa 100%);
+            padding: 18px 18px 14px 18px;
+            flex-shrink: 0;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 5;
+        }
+        .notes-header-title {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .notes-header-title h1 {
+            font-size: 28px; font-weight: 800; color: #1a1a1a;
+            letter-spacing: -0.8px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .notes-header-title h1::before {
+            content: '';
+            width: 10px; height: 10px; border-radius: 50%;
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            box-shadow: 0 0 14px rgba(15, 118, 110, 0.6);
+        }
+        .notes-header-actions { display: flex; gap: 4px; }
+        .notes-icon-btn {
+            width: 38px; height: 38px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: #5a5a52; font-size: 15px;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .notes-icon-btn:active { background: #efefe9; transform: scale(0.94); }
+
+        .notes-search {
+            background: #efefe9;
+            border-radius: 14px;
+            padding: 11px 14px;
+            display: flex; align-items: center; gap: 10px;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+        }
+        .notes-search:focus-within {
+            background: #ffffff;
+            border-color: #0f766e;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
+        }
+        .notes-search input {
+            background: transparent; border: none; outline: none;
+            flex: 1; font-size: 15px; color: #1a1a1a;
+            font-family: inherit; font-weight: 500;
+        }
+        .notes-search input::placeholder { color: #9a9a90; font-weight: 400; }
+        .notes-search i { color: #7a7a70; font-size: 15px; transition: color 0.2s; }
+        .notes-search:focus-within i { color: #0f766e; }
+
+        .notes-list {
+            flex: 1; overflow-y: auto;
+            background: #f8f8f5;
+            padding: 14px 14px 90px 14px;
+        }
+        .notes-list::-webkit-scrollbar { width: 0; }
+
+        .note-item {
+            padding: 16px 18px;
+            border-radius: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.03);
+            overflow: hidden;
+            animation: noteIn 0.35s ease-out backwards;
+        }
+        @keyframes noteIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .note-item:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .note-item-title {
+            font-size: 16px; font-weight: 700; color: #1a1a1a;
+            margin-bottom: 6px; letter-spacing: -0.2px;
+        }
+        .note-item-preview {
+            font-size: 13.5px; color: #5a5a52; line-height: 1.5;
+            display: -webkit-box; -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .note-item-date {
+            font-size: 11px; color: #9a9a90;
+            margin-top: 10px; font-weight: 500;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .note-item-date::before {
+            content: '';
+            width: 4px; height: 4px; border-radius: 50%;
+            background: #c0c0b8;
+        }
+
+        .notes-fab {
+            position: absolute;
+            bottom: 24px; right: 24px;
+            width: 62px; height: 62px; border-radius: 50%;
+            background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 20px rgba(15, 118, 110, 0.5), 0 2px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+        }
+        .notes-fab:active {
+            transform: scale(0.88);
+            box-shadow: 0 3px 10px rgba(15, 118, 110, 0.4);
+        }
+
+        .notes-empty {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100%; padding: 60px 32px; text-align: center;
+        }
+        .notes-empty-icon {
+            width: 100px; height: 100px; border-radius: 32px;
+            background: linear-gradient(135deg, #e6f7f5 0%, #d1f0eb 100%);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 24px rgba(15, 118, 110, 0.12);
+        }
+        .notes-empty-icon i { font-size: 44px; color: #14b8a6; }
+        .notes-empty h3 {
+            font-size: 18px; font-weight: 700; color: #3a3a32;
+            margin: 0 0 6px 0;
+        }
+        .notes-empty p { font-size: 14px; color: #8a8a80; margin: 0; line-height: 1.5; }
+
+        /* Note Edit Screen */
+        #noteEditScreen {
+            background: #ffffff;
+            color: #1a1a1a;
+            transition: background 0.3s;
+        }
+        @media (min-width: 768px) { #noteEditScreen { border-radius: 24px; } }
+
+        .note-edit-header {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 12px 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            position: relative; z-index: 5;
+        }
+        .note-edit-btn {
+            padding: 9px 16px; border-radius: 10px;
+            font-weight: 600; font-size: 14px;
+            cursor: pointer; transition: all 0.15s;
+            border: none; background: transparent; font-family: inherit;
+            display: flex; align-items: center;
+        }
+        .note-edit-btn:active { background: rgba(0,0,0,0.06); transform: scale(0.96); }
+        .note-edit-btn.save {
+            color: #0f766e;
+            background: rgba(15, 118, 110, 0.12);
+        }
+        .note-edit-btn.save:active { background: rgba(15, 118, 110, 0.22); }
+        .note-edit-btn.delete { color: #dc2626; }
+        .note-edit-btn.cancel { color: #7a7a70; }
+
+        .note-edit-title-input {
+            width: 100%; background: transparent;
+            border: none; outline: none;
+            font-size: 24px; font-weight: 700; color: #1a1a1a;
+            padding: 20px 22px 10px 22px; font-family: inherit;
+            letter-spacing: -0.4px;
+        }
+        .note-edit-title-input::placeholder { color: #c8c8c0; font-weight: 600; }
+
+        .note-edit-body-input {
+            width: 100%; flex: 1;
+            background: transparent; border: none; outline: none;
+            font-size: 15.5px; color: #3a3a32;
+            padding: 8px 22px 24px 22px; font-family: inherit;
+            resize: none; line-height: 1.65; overflow-y: auto;
+        }
+        .note-edit-body-input::placeholder { color: #b8b8b0; }
+
+        .note-color-picker {
+            display: flex; gap: 10px;
+            padding: 6px 22px 16px 22px;
+            overflow-x: auto; flex-shrink: 0;
+            scrollbar-width: none;
+        }
+        .note-color-picker::-webkit-scrollbar { display: none; }
+        .color-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            cursor: pointer; flex-shrink: 0;
+            border: 2px solid rgba(0,0,0,0.08);
+            transition: transform 0.15s, border-color 0.15s;
+            position: relative;
+        }
+        .color-dot:active { transform: scale(0.9); }
+        .color-dot.selected {
+            border-color: #1a1a1a;
+            transform: scale(1.12);
+        }
+        .color-dot.selected::after {
+            content: '✓';
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #1a1a1a; font-size: 15px; font-weight: 800;
+        }
+        
+        /* ============================================
+           CHAT APP
+           ============================================ */
         .messages-area {
             flex: 1 1 0; min-height: 0;
             overflow-y: scroll; overflow-x: hidden;
@@ -62,43 +288,28 @@
         .messages-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         .flex-shrink-0 { flex-shrink: 0; }
         
-        /* REELS */
         #reelsContainer {
             flex: 1 1 0; min-height: 0;
             overflow-y: scroll; overflow-x: hidden;
             scroll-snap-type: y mandatory;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-y: contain;
-            background: #000;
-            scrollbar-width: none;
+            background: #000; scrollbar-width: none;
             position: relative;
         }
         #reelsContainer::-webkit-scrollbar { display: none; }
-
         .reel-item {
             width: 100%; height: 100%;
             scroll-snap-align: start; scroll-snap-stop: always;
             position: relative; overflow: hidden;
             background: #000; flex-shrink: 0;
         }
-
-        .reel-item video {
-            width: 100%; height: 100%;
-            object-fit: contain;
-            background: #000;
-            display: block;
-        }
-
+        .reel-item video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
         .reel-item iframe {
-            position: absolute;
-            top: -60px;
-            left: 0;
-            width: 100%;
-            height: calc(100% + 120px);
-            border: none;
-            background: #000;
+            position: absolute; top: -60px; left: 0;
+            width: 100%; height: calc(100% + 120px);
+            border: none; background: #000;
         }
-
         .reel-number {
             position: absolute; top: 12px; right: 12px;
             background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(10px);
@@ -107,51 +318,25 @@
             z-index: 15; pointer-events: none;
             border: 1px solid rgba(255,255,255,0.1);
         }
-
         .reel-sound-btn {
-            position: absolute;
-            bottom: 70px;
-            right: 14px;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-            z-index: 15;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.15);
-            transition: transform 0.15s;
+            position: absolute; bottom: 70px; right: 14px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px; z-index: 15;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
         }
-        .reel-sound-btn:active { transform: scale(0.9); }
         .reel-sound-btn.on { background: rgba(59,130,246,0.7); }
-
         .reel-open-btn {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
+            position: absolute; bottom: 16px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 8px 18px;
-            border-radius: 24px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 15;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.15);
-            transition: transform 0.15s;
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
+            color: white; padding: 8px 18px;
+            border-radius: 24px; font-size: 12px; font-weight: 600;
+            z-index: 15; display: flex; align-items: center; gap: 6px;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
             white-space: nowrap;
         }
-        .reel-open-btn:active { transform: translateX(-50%) scale(0.95); }
-
         .swipe-hint {
             position: absolute; left: 50%; bottom: 80px;
             transform: translateX(-50%);
@@ -166,7 +351,6 @@
             0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
             50% { opacity: 1; transform: translateX(-50%) translateY(-5px); }
         }
-
         .reels-empty {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
@@ -178,26 +362,18 @@
             border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .reel-play-overlay {
             position: absolute; inset: 0;
             display: flex; align-items: center; justify-content: center;
-            z-index: 10; cursor: pointer;
-            background: transparent;
-            opacity: 0;
-            transition: opacity 0.2s;
+            z-index: 10; cursor: pointer; background: transparent;
+            opacity: 0; transition: opacity 0.2s;
         }
-        .reel-play-overlay.show {
-            opacity: 1;
-            background: rgba(0,0,0,0.3);
-        }
+        .reel-play-overlay.show { opacity: 1; background: rgba(0,0,0,0.3); }
         .reel-play-overlay i {
-            font-size: 60px;
-            color: rgba(255,255,255,0.9);
+            font-size: 60px; color: rgba(255,255,255,0.9);
             filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
         }
-
-        /* OTHER */
+        
         @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } }
         .status-online { background: #22c55e; animation: pulse 2s infinite; }
         .status-offline { background: #64748b; }
@@ -327,8 +503,49 @@
         <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
     </div>
 
+    <!-- NOTES SCREEN -->
+    <div id="notesScreen" class="screen">
+        <div class="notes-header">
+            <div class="notes-header-title">
+                <h1>Notes</h1>
+                <div class="notes-header-actions">
+                    <div class="notes-icon-btn" id="notesSearchBtn"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <div class="notes-icon-btn" id="notesMoreBtn"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                </div>
+            </div>
+            <div class="notes-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="notesSearchInput" placeholder="Search your notes..." autocomplete="off">
+            </div>
+        </div>
+        <div class="notes-list" id="notesList"></div>
+        <div class="notes-fab" id="notesAddBtn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+
+    <!-- NOTE EDIT SCREEN -->
+    <div id="noteEditScreen" class="screen hidden">
+        <div class="note-edit-header">
+            <button class="note-edit-btn cancel" id="noteCancelBtn"><i class="fa-solid fa-chevron-left" style="margin-right:4px;"></i> Back</button>
+            <div style="display:flex;gap:4px;">
+                <button class="note-edit-btn delete" id="noteDeleteBtn">Delete</button>
+                <button class="note-edit-btn save" id="noteSaveBtn">Save</button>
+            </div>
+        </div>
+        <input type="text" class="note-edit-title-input" id="noteTitleInput" placeholder="Title" autocomplete="off">
+        <textarea class="note-edit-body-input" id="noteBodyInput" placeholder="Start typing your note..."></textarea>
+        <div class="note-color-picker" id="noteColorPicker">
+            <div class="color-dot selected" data-color="#ffffff" style="background:#ffffff;"></div>
+            <div class="color-dot" data-color="#fff9c4" style="background:#fff9c4;"></div>
+            <div class="color-dot" data-color="#c8e6c9" style="background:#c8e6c9;"></div>
+            <div class="color-dot" data-color="#bbdefb" style="background:#bbdefb;"></div>
+            <div class="color-dot" data-color="#f8bbd0" style="background:#f8bbd0;"></div>
+            <div class="color-dot" data-color="#e1bee7" style="background:#e1bee7;"></div>
+            <div class="color-dot" data-color="#ffe0b2" style="background:#ffe0b2;"></div>
+        </div>
+    </div>
+
     <!-- LOGIN -->
-    <div id="loginScreen" class="screen items-center justify-center p-4">
+    <div id="loginScreen" class="screen hidden items-center justify-center p-4">
         <div class="w-full max-w-sm p-8 rounded-3xl shadow-2xl text-center" style="background: rgba(19, 28, 46, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08);">
             <div class="bg-gradient-to-tr from-blue-500 to-purple-600 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform rotate-3">
                 <i class="fa-solid fa-comments text-5xl text-white"></i>
@@ -346,6 +563,7 @@
             <button id="loginBtn" class="btn-press bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3.5 rounded-xl w-full hover:from-blue-500 hover:to-purple-500 transition duration-300 font-bold shadow-lg shadow-blue-500/30 mb-3">লগইন করুন</button>
             <button id="signupBtn" class="btn-press bg-transparent text-blue-400 border border-blue-500/50 px-6 py-3.5 rounded-xl w-full hover:bg-blue-500/10 transition duration-300 font-semibold">নতুন অ্যাকাউন্ট খুলুন</button>
             <p id="authMessage" class="text-sm text-red-400 mt-4 h-5"></p>
+            <button id="backToNotesBtn" class="btn-press text-xs text-gray-500 hover:text-gray-300 mt-4 underline">Notes-এ ফিরে যান</button>
         </div>
     </div>
 
@@ -357,9 +575,7 @@
                 <p class="text-xs text-gray-500 mt-0.5" id="welcomeText">স্বাগতম!</p>
             </div>
             <div class="flex gap-2">
-                <button id="reelsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-pink-500/20 text-pink-400 w-10 h-10 rounded-xl transition border border-pink-500/30" title="ভিডিও দেখুন">
-                    <i class="fa-solid fa-circle-play"></i>
-                </button>
+                <button id="reelsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-pink-500/20 text-pink-400 w-10 h-10 rounded-xl transition border border-pink-500/30" title="ভিডিও"><i class="fa-solid fa-circle-play"></i></button>
                 <button id="requestsBtn" class="btn-press text-sm bg-slate-800/80 hover:bg-yellow-500/20 text-yellow-400 w-10 h-10 rounded-xl transition border border-yellow-500/30 relative">
                     <i class="fa-solid fa-user-plus"></i>
                     <span id="requestsBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -384,7 +600,7 @@
         </div>
     </div>
 
-    <!-- REELS SCREEN -->
+    <!-- REELS -->
     <div id="reelsScreen" class="screen hidden" style="background: #000;">
         <div class="p-4 flex items-center justify-between border-b border-slate-700/50 flex-shrink-0" style="background: rgba(10, 15, 28, 0.95); backdrop-filter: blur(20px); z-index: 20;">
             <button id="backFromReelsBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
@@ -393,12 +609,8 @@
                 <h2 class="font-bold text-lg text-white">ভিডিও</h2>
             </div>
             <div class="flex gap-2">
-                <button id="reelRefreshBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-                <button id="reelAddBtn" class="btn-press w-9 h-9 rounded-full bg-pink-500/20 hover:bg-pink-500/30 flex items-center justify-center text-pink-400 transition border border-pink-500/30">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
+                <button id="reelRefreshBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-rotate-right"></i></button>
+                <button id="reelAddBtn" class="btn-press w-9 h-9 rounded-full bg-pink-500/20 hover:bg-pink-500/30 flex items-center justify-center text-pink-400 transition border border-pink-500/30"><i class="fa-solid fa-plus"></i></button>
             </div>
         </div>
         <div id="reelsContainer"></div>
@@ -418,9 +630,7 @@
             <button id="chatMenuBtn" class="btn-press w-9 h-9 rounded-full hover:bg-slate-700/50 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
         <div id="messagesContainer" class="messages-area"></div>
-        <button id="scrollToBottomBtn" class="scroll-btn hide fixed bottom-24 right-4 w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 hover:bg-slate-700 transition z-30" style="display: flex;">
-            <i class="fa-solid fa-arrow-down"></i>
-        </button>
+        <button id="scrollToBottomBtn" class="scroll-btn hide fixed bottom-24 right-4 w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 hover:bg-slate-700 transition z-30" style="display: flex;"><i class="fa-solid fa-arrow-down"></i></button>
         <div id="replyPreview" class="hidden reply-preview px-3 pt-3 bg-slate-900/80 backdrop-blur border-t border-slate-700/50 flex-shrink-0">
             <div class="flex items-center gap-3 bg-slate-800/80 rounded-xl p-2 border-l-4 border-blue-500">
                 <i class="fa-solid fa-reply text-blue-400"></i>
@@ -452,9 +662,7 @@
         </div>
         <div class="messages-area p-4" style="background: #0a0f1c;">
             <div class="rounded-2xl p-4 mb-4 flex items-center gap-4" style="background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.06);">
-                <div class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-blue-500/30 flex-shrink-0" id="settingsAvatar">
-                    <i class="fa-solid fa-user text-2xl text-white"></i>
-                </div>
+                <div class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-blue-500/30 flex-shrink-0" id="settingsAvatar"><i class="fa-solid fa-user text-2xl text-white"></i></div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-bold text-lg text-white truncate" id="settingsName">নাম</h3>
                     <p class="text-xs text-gray-500 truncate" id="settingsEmail">email</p>
@@ -482,6 +690,14 @@
                     <i class="fa-solid fa-chevron-right text-gray-600"></i>
                 </div>
             </div>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider px-2 mb-2">প্রাইভেসি</p>
+            <div class="rounded-2xl mb-4 overflow-hidden" style="background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="settings-item" id="settingsLockApp">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-lock text-yellow-400"></i></div>
+                    <div class="flex-1"><p class="text-white font-medium">লক করুন</p><p class="text-xs text-gray-500">Notes স্ক্রিনে ফিরে যান</p></div>
+                    <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                </div>
+            </div>
             <button id="settingsLogoutBtn" class="btn-press w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 py-3.5 rounded-2xl font-bold transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-right-from-bracket"></i> লগআউট করুন
             </button>
@@ -500,9 +716,7 @@
         </div>
         <div id="requestsList" class="messages-area" style="background: #0a0f1c;">
             <div class="flex flex-col items-center justify-center h-full text-center px-8">
-                <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-                    <i class="fa-solid fa-user-plus text-4xl text-slate-600"></i>
-                </div>
+                <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-user-plus text-4xl text-slate-600"></i></div>
                 <p class="text-gray-400 font-semibold">কোনো রিকোয়েস্ট নেই</p>
             </div>
         </div>
@@ -535,16 +749,12 @@
                 <button id="closeAddReelBtn" class="btn-press w-8 h-8 rounded-full hover:bg-slate-700 flex items-center justify-center text-gray-400"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-3 mb-4">
-                <p class="text-xs text-pink-300">
-                    <i class="fa-solid fa-circle-info mr-1"></i>
-                    যেকোনো ভিডিও লিংক দিন:<br>
-                    <span class="text-pink-200 text-[11px]">YouTube • Instagram • TikTok • Facebook • Vimeo • m3u8 • mp4</span>
-                </p>
+                <p class="text-xs text-pink-300"><i class="fa-solid fa-circle-info mr-1"></i>YouTube • Instagram • TikTok • Facebook • Vimeo • m3u8 • mp4</p>
             </div>
             <label class="block text-sm text-gray-400 mb-1.5">লিংক</label>
             <input type="text" id="newReelUrl" placeholder="https://..." class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-sm">
             <label class="block text-sm text-gray-400 mb-1.5">একাধিক লিংক (প্রতি লাইনে একটি)</label>
-            <textarea id="newReelUrlsBulk" rows="4" placeholder="https://youtube.com/shorts/...&#10;https://instagram.com/reel/...&#10;https://example.com/video.m3u8" class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-xs"></textarea>
+            <textarea id="newReelUrlsBulk" rows="4" placeholder="https://youtube.com/shorts/..." class="input-focus w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 mb-4 text-white focus:outline-none transition text-xs"></textarea>
             <div class="flex gap-2">
                 <button id="saveReelBtn" class="btn-press flex-1 bg-gradient-to-r from-pink-600 to-purple-600 text-white py-3 rounded-xl font-bold transition">যোগ করুন</button>
                 <button id="closeAddReelBtn2" class="btn-press bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold transition">বাতিল</button>
@@ -623,14 +833,19 @@
   appId: "1:1033147841261:web:0bbd7bbcea219c33926ae4",
 };
 
+    // 🔐 গোপন কোড
+    const SECRET_WORD = "honeyqalbi";
+    const SECRET_TAP_COUNT = 3;
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     db.enablePersistence().catch((err) => console.log("Persistence: ", err.code));
 
     const $ = (id) => document.getElementById(id);
-    const loginScreen = $('loginScreen'), inboxScreen = $('inboxScreen'), chatRoomScreen = $('chatRoomScreen');
-    const settingsScreen = $('settingsScreen'), requestsScreen = $('requestsScreen'), reelsScreen = $('reelsScreen');
+    const notesScreen = $('notesScreen'), loginScreen = $('loginScreen'), inboxScreen = $('inboxScreen');
+    const chatRoomScreen = $('chatRoomScreen'), settingsScreen = $('settingsScreen'), requestsScreen = $('requestsScreen'), reelsScreen = $('reelsScreen');
+    const noteEditScreen = $('noteEditScreen');
     const profileModal = $('profileModal'), nicknameModal = $('nicknameModal'), addReelModal = $('addReelModal');
 
     let currentUser = null;
@@ -645,10 +860,251 @@
     let heartbeatInterval = null;
     let allReels = [];
     let reelsLoaded = false;
+    let appUnlocked = false;
 
+    // ============================================
+    // 📝 NOTES APP
+    // ============================================
+    const NOTES_STORAGE_KEY = 'shohojchat_notes_v1';
+
+    const DEFAULT_NOTES = [
+        { id: 'n1', title: 'Bazar List', body: 'আলু ২ কেজি\nপেঁয়াজ ১ কেজি\nরসুন ২৫০ গ্রাম\nকাঁচা মরিচ\nআদা\nতেল\nচাল\nডাল\nলবণ\nচিনি\nদুধ\nডিম\nপাউরুটি', updatedAt: Date.now() - 3600000, color: '#fff9c4' },
+        { id: 'n2', title: 'Meeting Notes', body: 'সোমবার সকাল ১০টায় অফিসে মিটিং।\n\nপ্রজেক্টের আপডেট নিয়ে আলোচনা হবে। সবাই সময়মতো উপস্থিত থাকবেন।', updatedAt: Date.now() - 7200000, color: '#bbdefb' },
+        { id: 'n3', title: 'Birthday Reminder', body: 'রাকিবের জন্মদিন ১৫ তারিখ।\n\n- গিফট কিনতে হবে\n- কেক অর্ডার করে রাখতে হবে', updatedAt: Date.now() - 259200000, color: '#f8bbd0' },
+        { id: 'n4', title: 'WiFi Password', body: 'বাসার WiFi: Home_5G\nPassword: 01712XXXXXX\n\nঅফিস WiFi: OfficeNet\nPassword: office@2024', updatedAt: Date.now() - 604800000, color: '#c8e6c9' },
+        { id: 'n5', title: 'Study Plan', body: 'রাতে ২ ঘণ্টা পড়া\nসকালে ১ ঘণ্টা রিভিশন\nশুক্রবার পুরো দিন রিভিশন', updatedAt: Date.now() - 864000000, color: '#e1bee7' },
+        { id: 'n6', title: 'Grocery', body: 'চাল, ডাল, তেল, চিনি, লবণ, মাছ, মাংস, সবজি, ফল', updatedAt: Date.now() - 1036800000, color: '#ffe0b2' },
+        { id: 'n7', title: 'Movie Watchlist', body: '১. ইনসেপশন\n২. দ্য ডার্ক নাইট\n৩. ইন্টারস্টেলার\n৪. পারাসাইট\n৫. থ্রি ইডিয়টস', updatedAt: Date.now() - 1296000000, color: '#fff9c4' }
+    ];
+
+    const NOTE_COLORS = ['#ffffff', '#fff9c4', '#c8e6c9', '#bbdefb', '#f8bbd0', '#e1bee7', '#ffe0b2'];
+
+    let notes = [];
+    let editingNoteId = null;
+    let noteTapCounts = {};
+
+    function loadNotes() {
+        try {
+            const stored = localStorage.getItem(NOTES_STORAGE_KEY);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) { notes = parsed; return; }
+            }
+        } catch(e) {}
+        notes = [...DEFAULT_NOTES];
+        saveNotesToStorage();
+    }
+    function saveNotesToStorage() {
+        try { localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes)); } catch(e) {}
+    }
+    function formatNoteDate(ts) {
+        const d = new Date(ts);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const noteDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffDays = Math.floor((today - noteDay) / 86400000);
+        const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        if (diffDays === 0) return `Today, ${timeStr}`;
+        if (diffDays === 1) return `Yesterday, ${timeStr}`;
+        if (diffDays < 7) return d.toLocaleDateString('en-US', { weekday: 'long' });
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+    }
+    function escapeHtmlNote(text) {
+        const d = document.createElement('div');
+        d.textContent = text || '';
+        return d.innerHTML;
+    }
+    function renderNotes(filter) {
+        const list = $('notesList');
+        list.innerHTML = '';
+        let displayNotes = notes;
+        if (filter && filter.trim()) {
+            const q = filter.trim().toLowerCase();
+            displayNotes = notes.filter(n => (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q));
+        }
+        displayNotes = [...displayNotes].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        if (displayNotes.length === 0) {
+            list.innerHTML = `<div class="notes-empty">
+                <div class="notes-empty-icon"><i class="fa-solid fa-note-sticky"></i></div>
+                <h3>${filter ? 'No notes found' : 'No notes yet'}</h3>
+                <p>${filter ? 'Try a different search term' : 'Tap the + button to create your first note'}</p>
+            </div>`;
+            return;
+        }
+        displayNotes.forEach((note, i) => {
+            const item = document.createElement('div');
+            item.className = 'note-item';
+            item.style.background = note.color || '#ffffff';
+            item.style.animationDelay = (i * 30) + 'ms';
+            const title = note.title || 'Untitled';
+            const bodyPreview = (note.body || '').replace(/\n/g, ' · ') || 'No additional text';
+            item.innerHTML = `
+                <div class="note-item-title">${escapeHtmlNote(title)}</div>
+                <div class="note-item-preview">${escapeHtmlNote(bodyPreview)}</div>
+                <div class="note-item-date">${formatNoteDate(note.updatedAt || Date.now())}</div>
+            `;
+            let tapTimer = null;
+            item.addEventListener('click', () => {
+                noteTapCounts[note.id] = (noteTapCounts[note.id] || 0) + 1;
+                if (tapTimer) clearTimeout(tapTimer);
+                tapTimer = setTimeout(() => {
+                    const count = noteTapCounts[note.id] || 0;
+                    noteTapCounts[note.id] = 0;
+                    if (count >= SECRET_TAP_COUNT) {
+                        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                        unlockApp();
+                    } else {
+                        openNoteEditor(note.id);
+                    }
+                }, 500);
+            });
+            list.appendChild(item);
+        });
+    }
+    function openNoteEditor(noteId) {
+        editingNoteId = noteId;
+        let note;
+        if (noteId === 'NEW') {
+            const randomColor = NOTE_COLORS[Math.floor(Math.random() * (NOTE_COLORS.length - 1)) + 1];
+            note = { id: 'note_' + Date.now(), title: '', body: '', updatedAt: Date.now(), color: randomColor };
+            notes.unshift(note);
+            saveNotesToStorage();
+        } else {
+            note = notes.find(n => n.id === noteId);
+            if (!note) return;
+        }
+        $('noteTitleInput').value = note.title || '';
+        $('noteBodyInput').value = note.body || '';
+        const currentColor = note.color || '#ffffff';
+        $('noteEditScreen').style.background = currentColor;
+        document.querySelectorAll('.color-dot').forEach(d => {
+            d.classList.toggle('selected', d.dataset.color === currentColor);
+        });
+        showNoteEditScreen();
+        if (noteId === 'NEW') setTimeout(() => $('noteTitleInput').focus(), 250);
+    }
+    function showNoteEditScreen() {
+        [notesScreen, loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen].forEach(s => s.classList.add('hidden'));
+        noteEditScreen.classList.remove('hidden');
+    }
+    function closeNoteEditor(save) {
+        if (save && editingNoteId) {
+            const note = notes.find(n => n.id === editingNoteId);
+            if (note) {
+                const newTitle = $('noteTitleInput').value.trim();
+                const newBody = $('noteBodyInput').value;
+                if (!newTitle && !newBody.trim()) {
+                    notes = notes.filter(n => n.id !== editingNoteId);
+                } else {
+                    note.title = newTitle || 'Untitled';
+                    note.body = newBody;
+                    note.updatedAt = Date.now();
+                }
+                saveNotesToStorage();
+            }
+        } else if (!save && editingNoteId) {
+            const note = notes.find(n => n.id === editingNoteId);
+            if (note && !note.title && !note.body) {
+                notes = notes.filter(n => n.id !== editingNoteId);
+                saveNotesToStorage();
+            }
+        }
+        editingNoteId = null;
+        $('noteEditScreen').style.background = '';
+        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen, noteEditScreen].forEach(s => s.classList.add('hidden'));
+        if (appUnlocked) {
+            showScreen(currentUser ? inboxScreen : loginScreen);
+        } else {
+            notesScreen.classList.remove('hidden');
+            $('notesSearchInput').value = '';
+            renderNotes();
+        }
+    }
+    $('noteSaveBtn').addEventListener('click', () => closeNoteEditor(true));
+    $('noteCancelBtn').addEventListener('click', () => closeNoteEditor(true));
+    $('noteDeleteBtn').addEventListener('click', () => {
+        if (!editingNoteId) return;
+        if (!confirm('Delete this note?')) return;
+        notes = notes.filter(n => n.id !== editingNoteId);
+        saveNotesToStorage();
+        editingNoteId = null;
+        $('noteEditScreen').style.background = '';
+        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen, noteEditScreen].forEach(s => s.classList.add('hidden'));
+        if (appUnlocked) showScreen(currentUser ? inboxScreen : loginScreen);
+        else { notesScreen.classList.remove('hidden'); renderNotes(); }
+    });
+
+    // Color picker
+    document.querySelectorAll('.color-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+            document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+            dot.classList.add('selected');
+            const color = dot.dataset.color;
+            $('noteEditScreen').style.background = color;
+            if (editingNoteId) {
+                const note = notes.find(n => n.id === editingNoteId);
+                if (note) {
+                    note.color = color;
+                    note.updatedAt = Date.now();
+                    saveNotesToStorage();
+                }
+            }
+        });
+    });
+
+    let noteAutoSaveTimer = null;
+    function autoSaveNote() {
+        if (!editingNoteId) return;
+        if (noteAutoSaveTimer) clearTimeout(noteAutoSaveTimer);
+        noteAutoSaveTimer = setTimeout(() => {
+            const note = notes.find(n => n.id === editingNoteId);
+            if (note) {
+                note.title = $('noteTitleInput').value.trim() || 'Untitled';
+                note.body = $('noteBodyInput').value;
+                note.updatedAt = Date.now();
+                saveNotesToStorage();
+            }
+        }, 800);
+    }
+    $('noteTitleInput').addEventListener('input', autoSaveNote);
+    $('noteBodyInput').addEventListener('input', autoSaveNote);
+
+    // Search with secret word
+    $('notesSearchInput').addEventListener('input', (e) => {
+        const query = e.target.value;
+        if (query.trim().toLowerCase() === SECRET_WORD.toLowerCase()) {
+            e.target.value = '';
+            if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+            unlockApp();
+        } else {
+            renderNotes(query);
+        }
+    });
+
+    function unlockApp() {
+        appUnlocked = true;
+        [notesScreen, noteEditScreen].forEach(s => s.classList.add('hidden'));
+        if (currentUser) showScreen(inboxScreen);
+        else showScreen(loginScreen);
+    }
+    function lockApp() {
+        appUnlocked = false;
+        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen, noteEditScreen].forEach(s => s.classList.add('hidden'));
+        notesScreen.classList.remove('hidden');
+        $('notesSearchInput').value = '';
+        renderNotes();
+    }
+
+    $('notesAddBtn').addEventListener('click', () => openNoteEditor('NEW'));
+    $('notesSearchBtn').addEventListener('click', () => $('notesSearchInput').focus());
+    $('notesMoreBtn').addEventListener('click', () => { if (navigator.vibrate) navigator.vibrate(10); });
+    $('backToNotesBtn').addEventListener('click', lockApp);
+
+    // ============================================
     // ONLINE / OFFLINE
-    window.addEventListener('online', () => { isOnline = true; markOnline(); });
-    window.addEventListener('offline', () => { isOnline = false; markOffline(); });
+    // ============================================
+    window.addEventListener('online', () => { isOnline = true; if (currentUser) markOnline(); });
+    window.addEventListener('offline', () => { isOnline = false; if (currentUser) markOffline(); });
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden' && currentUser) markOffline();
         else if (document.visibilityState === 'visible' && currentUser && isOnline) markOnline();
@@ -686,7 +1142,6 @@
         if (diff < 604800) return `${Math.floor(diff / 86400)} দিন আগে`;
         return date.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' });
     }
-
     function escapeHtml(text) {
         const d = document.createElement('div');
         d.textContent = text || '';
@@ -701,7 +1156,7 @@
         setTimeout(() => t.remove(), 2000);
     }
     function showScreen(screen) {
-        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen].forEach(s => s.classList.add('hidden'));
+        [loginScreen, inboxScreen, chatRoomScreen, settingsScreen, requestsScreen, reelsScreen, notesScreen, noteEditScreen].forEach(s => s.classList.add('hidden'));
         screen.classList.remove('hidden');
     }
 
@@ -749,58 +1204,48 @@
                 await markOnline();
                 startHeartbeat();
             }
-            showScreen(inboxScreen);
+            if (appUnlocked) showScreen(inboxScreen);
             loadChatList();
             setupRequestsListener();
             setupReelsListener();
         } else {
             currentUser = null;
-            showScreen(loginScreen);
+            if (appUnlocked) showScreen(loginScreen);
             $('authMessage').innerText = '';
             if (heartbeatInterval) clearInterval(heartbeatInterval);
         }
     });
 
-    // UNIVERSAL VIDEO URL DETECTION
+    // VIDEO DETECTION
     function detectVideoSource(url) {
         if (!url) return null;
         const u = url.trim();
         if (/\.m3u8(\?|#|$)/i.test(u)) return { type: 'hls', url: u };
         if (/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(u)) return { type: 'video', url: u };
-
         let m = u.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
-        if (m) return {
-            type: 'iframe',
-            url: `https://www.youtube.com/embed/${m[1]}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${m[1]}&rel=0&modestbranding=1`,
-            original: u
-        };
+        if (m) return { type: 'iframe', url: `https://www.youtube.com/embed/${m[1]}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${m[1]}&rel=0&modestbranding=1`, original: u };
         m = u.match(/vimeo\.com\/(\d+)/);
         if (m) return { type: 'iframe', url: `https://player.vimeo.com/video/${m[1]}?autoplay=1&muted=1&loop=1`, original: u };
         m = u.match(/instagram\.com\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/);
         if (m) return { type: 'iframe', url: `https://www.instagram.com/reel/${m[1]}/embed/`, original: u };
         m = u.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
         if (m) return { type: 'iframe', url: `https://www.tiktok.com/embed/v2/${m[1]}?autoplay=1&loop=1`, original: u };
-        if (/facebook\.com|fb\.watch/.test(u)) return {
-            type: 'iframe',
-            url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}&show_text=0&autoplay=1`,
-            original: u
-        };
+        if (/facebook\.com|fb\.watch/.test(u)) return { type: 'iframe', url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}&show_text=0&autoplay=1`, original: u };
         return { type: 'video', url: u, original: u };
     }
-
     function getHostName(url) {
         try { return new URL(url).hostname.replace('www.', ''); }
         catch(e) { return 'link'; }
     }
 
-    // REELS SYSTEM
+    // REELS
     function setupReelsListener() {
         if (unsubscribeReels) unsubscribeReels();
         unsubscribeReels = db.collection('reels').orderBy('createdAt', 'asc').onSnapshot(snapshot => {
             allReels = [];
             snapshot.forEach(doc => { allReels.push({ id: doc.id, ...doc.data() }); });
             reelsLoaded = true;
-            if (!$('reelsScreen').classList.contains('hidden')) renderReels();
+            if (!reelsScreen.classList.contains('hidden')) renderReels();
         }, err => console.log('Reels listener error:', err));
     }
 
@@ -815,32 +1260,22 @@
             container.innerHTML = `<div class="reels-empty"><div class="reel-loading-spinner" style="margin-bottom:16px;"></div><p class="text-gray-400">ভিডিও লোড হচ্ছে...</p></div>`;
             return;
         }
-
         if (allReels.length === 0) {
-            container.innerHTML = `
-                <div class="reels-empty">
-                    <div class="w-24 h-24 bg-pink-500/10 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-circle-play text-4xl text-pink-400"></i>
-                    </div>
-                    <p class="text-white font-semibold mb-2">এখনো কোনো ভিডিও যোগ করা হয়নি</p>
-                    <p class="text-gray-500 text-sm mb-4">YouTube, Instagram, TikTok, m3u8, mp4 — যেকোনো লিংক দিন</p>
-                    <button onclick="document.getElementById('reelAddBtn').click()" class="btn-press bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold transition">
-                        <i class="fa-solid fa-plus mr-2"></i>ভিডিও যোগ করুন
-                    </button>
-                </div>`;
+            container.innerHTML = `<div class="reels-empty">
+                <div class="w-24 h-24 bg-pink-500/10 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-circle-play text-4xl text-pink-400"></i></div>
+                <p class="text-white font-semibold mb-2">এখনো কোনো ভিডিও যোগ করা হয়নি</p>
+                <p class="text-gray-500 text-sm mb-4">উপরে + চেপে ভিডিও লিংক যোগ করুন</p>
+            </div>`;
             return;
         }
-
         allReels.forEach((reel, idx) => {
             const source = detectVideoSource(reel.url);
             if (!source) return;
             const item = document.createElement('div');
             item.className = 'reel-item';
             item.dataset.index = idx;
-            item.dataset.type = source.type;
             const host = getHostName(source.original);
             const isVideoTag = (source.type === 'video' || source.type === 'hls');
-
             if (isVideoTag) {
                 item.innerHTML = `
                     <div class="reel-number">${idx + 1} / ${allReels.length}</div>
@@ -855,7 +1290,6 @@
                     <button class="reel-open-btn" onclick="window.open('${source.original}','_blank')"><i class="fa-solid fa-link"></i> ${host}</button>`;
             }
             container.appendChild(item);
-
             if (isVideoTag) {
                 const video = item.querySelector('video');
                 const playOverlay = item.querySelector('.reel-play-overlay');
@@ -875,13 +1309,9 @@
                     else { video.pause(); playOverlay.querySelector('i').className = 'fa-solid fa-play'; playOverlay.classList.add('show'); }
                 });
                 video.addEventListener('play', () => playOverlay.classList.remove('show'));
-                video.addEventListener('pause', () => {
-                    playOverlay.querySelector('i').className = 'fa-solid fa-play';
-                    playOverlay.classList.add('show');
-                });
+                video.addEventListener('pause', () => { playOverlay.querySelector('i').className = 'fa-solid fa-play'; playOverlay.classList.add('show'); });
             }
         });
-
         setupReelObserver();
         if (allReels.length > 1) {
             const hint = document.createElement('div');
@@ -891,7 +1321,6 @@
             setTimeout(() => hint.remove(), 5000);
         }
     }
-
     function setupReelObserver() {
         const container = $('reelsContainer');
         if (container._observer) container._observer.disconnect();
@@ -906,7 +1335,6 @@
         container.querySelectorAll('.reel-item').forEach(el => obs.observe(el));
         container._observer = obs;
     }
-
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.reel-sound-btn');
         if (!btn) return;
@@ -917,7 +1345,6 @@
         btn.classList.toggle('on', !video.muted);
         btn.innerHTML = video.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
     });
-
     async function addNewReels(urlsList) {
         const cleaned = urlsList.map(u => u.trim()).filter(u => u && /^https?:\/\//i.test(u));
         if (cleaned.length === 0) { alert('কোনো সঠিক লিংক পাওয়া যায়নি!'); return 0; }
@@ -937,7 +1364,6 @@
         await batch.commit();
         return toAdd.length;
     }
-
     $('reelsBtn').addEventListener('click', () => { showScreen(reelsScreen); renderReels(); });
     $('backFromReelsBtn').addEventListener('click', () => showScreen(inboxScreen));
     $('reelRefreshBtn').addEventListener('click', () => { showToast('রিফ্রেশ হচ্ছে...'); renderReels(); });
@@ -987,7 +1413,6 @@
     $('closeProfileBtn2').addEventListener('click', closeProfileModal);
     $('avatarClickArea').addEventListener('click', () => $('avatarInput').click());
     $('settingsEditProfileBtn').addEventListener('click', openProfileModal);
-
     $('avatarInput').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -1011,7 +1436,6 @@
             reader.readAsDataURL(file);
         }
     });
-
     $('saveProfileBtn').addEventListener('click', async () => {
         const newName = $('profileNameInput').value.trim();
         if (!newName) return alert("নাম খালি রাখা যাবে না!");
@@ -1028,7 +1452,6 @@
         closeProfileModal();
         updateSettingsUI();
     });
-
     function updateSettingsUI() {
         $('settingsName').innerText = userProfile.display_name || 'নাম';
         $('settingsEmail').innerText = userProfile.email || '';
@@ -1100,87 +1523,83 @@
     // CHAT LIST
     function loadChatList() {
         if (unsubscribeChatsList) unsubscribeChatsList();
-        unsubscribeChatsList = db.collection('chats')
-          .where('participants', 'array-contains', currentUser.uid)
-          .onSnapshot(snapshot => {
-              const list = $('chatList');
-              const acceptedChats = [];
-              snapshot.forEach(doc => {
-                  const data = doc.data();
-                  if (data.status === 'pending') return;
-                  acceptedChats.push({ id: doc.id, data });
-              });
-              acceptedChats.sort((a, b) => {
-                  const at = a.data.updated_at ? a.data.updated_at.toMillis() : 0;
-                  const bt = b.data.updated_at ? b.data.updated_at.toMillis() : 0;
-                  return bt - at;
-              });
-              list.innerHTML = '';
-              if (acceptedChats.length === 0) {
-                  list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
-                      <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-comment-dots text-4xl text-slate-600"></i></div>
-                      <p class="text-gray-400 font-semibold">কোনো চ্যাট নেই</p>
-                      <p class="text-gray-600 text-sm mt-1">উপরে নাম দিয়ে বন্ধু খুঁজুন!</p>
-                  </div>`;
-                  return;
-              }
-              acceptedChats.forEach(({ id: chatId, data: chat }) => {
-                  const partnerId = chat.participants.find(id => id !== currentUser.uid);
-                  const nickname = getNicknameForUser(chat, partnerId);
-                  const hasNickname = !!nickname;
-                  const div = document.createElement('div');
-                  div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30 hover:bg-slate-800/50 cursor-pointer transition active:bg-slate-700/50";
-                  div.dataset.chatId = chatId;
-                  div.innerHTML = `
-                      <div class="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center font-bold text-blue-400 text-lg overflow-hidden relative shadow-lg flex-shrink-0" id="avatar-${chatId}">
-                          <span class="avatar-initial">${nickname ? nickname[0].toUpperCase() : '?'}</span>
-                          <span id="status-dot-${chatId}" class="absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full"></span>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                          <h3 class="font-bold text-white truncate flex items-center gap-1" id="name-${chatId}">
-                              <span class="partner-name">${escapeHtml(nickname || 'লোড হচ্ছে...')}</span>
-                              ${hasNickname ? '<i class="fa-solid fa-tag text-[10px] text-blue-400 flex-shrink-0"></i>' : ''}
-                          </h3>
-                          <p class="text-xs text-gray-500 truncate mt-0.5">${escapeHtml(chat.last_message || 'নতুন চ্যাট')}</p>
-                      </div>
-                      <div class="text-xs text-gray-600 flex-shrink-0">${chat.updated_at ? formatListTime(chat.updated_at.toDate()) : ''}</div>
-                  `;
-                  div.onclick = () => openChat(chatId, partnerId);
-                  list.appendChild(div);
-
-                  db.collection('users').doc(partnerId).onSnapshot(ud => {
-                      if (!ud.exists) return;
-                      const u = ud.data();
-                      const av = document.getElementById(`avatar-${chatId}`);
-                      if (av) {
-                          const init = av.querySelector('.avatar-initial');
-                          if (u.photo_url) {
-                              let img = av.querySelector('img');
-                              if (!img) {
-                                  img = document.createElement('img');
-                                  img.className = 'w-full h-full object-cover';
-                                  av.insertBefore(img, av.firstChild);
-                                  if (init) init.style.display = 'none';
-                              }
-                              img.src = u.photo_url;
-                          } else if (init) {
-                              init.style.display = '';
-                              init.textContent = (nickname || u.display_name || '?')[0].toUpperCase();
-                          }
-                      }
-                      const dot = document.getElementById(`status-dot-${chatId}`);
-                      if (dot) dot.className = u.is_online
-                          ? "absolute bottom-0 right-0 w-3.5 h-3.5 status-online border-2 border-slate-900 rounded-full"
-                          : "absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full";
-                      if (!nickname) {
-                          const n = document.getElementById(`name-${chatId}`);
-                          if (n) { const ns = n.querySelector('.partner-name'); if (ns) ns.textContent = u.display_name || 'Unknown'; }
-                      }
-                  });
-              });
-          });
+        unsubscribeChatsList = db.collection('chats').where('participants', 'array-contains', currentUser.uid).onSnapshot(snapshot => {
+            const list = $('chatList');
+            const acceptedChats = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.status === 'pending') return;
+                acceptedChats.push({ id: doc.id, data });
+            });
+            acceptedChats.sort((a, b) => {
+                const at = a.data.updated_at ? a.data.updated_at.toMillis() : 0;
+                const bt = b.data.updated_at ? b.data.updated_at.toMillis() : 0;
+                return bt - at;
+            });
+            list.innerHTML = '';
+            if (acceptedChats.length === 0) {
+                list.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center px-8">
+                    <div class="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-comment-dots text-4xl text-slate-600"></i></div>
+                    <p class="text-gray-400 font-semibold">কোনো চ্যাট নেই</p>
+                    <p class="text-gray-600 text-sm mt-1">উপরে নাম দিয়ে বন্ধু খুঁজুন!</p>
+                </div>`;
+                return;
+            }
+            acceptedChats.forEach(({ id: chatId, data: chat }) => {
+                const partnerId = chat.participants.find(id => id !== currentUser.uid);
+                const nickname = getNicknameForUser(chat, partnerId);
+                const hasNickname = !!nickname;
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 p-4 border-b border-slate-700/30 hover:bg-slate-800/50 cursor-pointer transition active:bg-slate-700/50";
+                div.dataset.chatId = chatId;
+                div.innerHTML = `
+                    <div class="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center font-bold text-blue-400 text-lg overflow-hidden relative shadow-lg flex-shrink-0" id="avatar-${chatId}">
+                        <span class="avatar-initial">${nickname ? nickname[0].toUpperCase() : '?'}</span>
+                        <span id="status-dot-${chatId}" class="absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-white truncate flex items-center gap-1" id="name-${chatId}">
+                            <span class="partner-name">${escapeHtml(nickname || 'লোড হচ্ছে...')}</span>
+                            ${hasNickname ? '<i class="fa-solid fa-tag text-[10px] text-blue-400 flex-shrink-0"></i>' : ''}
+                        </h3>
+                        <p class="text-xs text-gray-500 truncate mt-0.5">${escapeHtml(chat.last_message || 'নতুন চ্যাট')}</p>
+                    </div>
+                    <div class="text-xs text-gray-600 flex-shrink-0">${chat.updated_at ? formatListTime(chat.updated_at.toDate()) : ''}</div>
+                `;
+                div.onclick = () => openChat(chatId, partnerId);
+                list.appendChild(div);
+                db.collection('users').doc(partnerId).onSnapshot(ud => {
+                    if (!ud.exists) return;
+                    const u = ud.data();
+                    const av = document.getElementById(`avatar-${chatId}`);
+                    if (av) {
+                        const init = av.querySelector('.avatar-initial');
+                        if (u.photo_url) {
+                            let img = av.querySelector('img');
+                            if (!img) {
+                                img = document.createElement('img');
+                                img.className = 'w-full h-full object-cover';
+                                av.insertBefore(img, av.firstChild);
+                                if (init) init.style.display = 'none';
+                            }
+                            img.src = u.photo_url;
+                        } else if (init) {
+                            init.style.display = '';
+                            init.textContent = (nickname || u.display_name || '?')[0].toUpperCase();
+                        }
+                    }
+                    const dot = document.getElementById(`status-dot-${chatId}`);
+                    if (dot) dot.className = u.is_online
+                        ? "absolute bottom-0 right-0 w-3.5 h-3.5 status-online border-2 border-slate-900 rounded-full"
+                        : "absolute bottom-0 right-0 w-3.5 h-3.5 status-offline border-2 border-slate-900 rounded-full";
+                    if (!nickname) {
+                        const n = document.getElementById(`name-${chatId}`);
+                        if (n) { const ns = n.querySelector('.partner-name'); if (ns) ns.textContent = u.display_name || 'Unknown'; }
+                    }
+                });
+            });
+        });
     }
-
     function formatListTime(date) {
         const now = new Date();
         const diff = Math.floor((now - date) / 1000);
@@ -1204,7 +1623,6 @@
             else badge.classList.add('hidden');
         });
     }
-
     function loadRequestsList() {
         const list = $('requestsList');
         db.collection('chats').where('participants', 'array-contains', currentUser.uid).where('status', '==', 'pending').onSnapshot(async snapshot => {
@@ -1260,7 +1678,6 @@
         });
     }
 
-    // START CHAT
     async function startChat(friend) {
         const existing = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
         let chatExists = false, existingId = null;
@@ -1280,14 +1697,12 @@
         }
     }
 
-    // OPEN CHAT
     function openChat(chatId, partnerId) {
         activeChatId = chatId;
         activePartnerId = partnerId;
         cancelReply(); hideReactionPopup();
         showScreen(chatRoomScreen);
         $('messagesContainer').dataset.loaded = '';
-
         if (unsubscribePartnerStatus) unsubscribePartnerStatus();
         unsubscribePartnerStatus = db.collection('users').doc(partnerId).onSnapshot(doc => {
             if (!doc.exists) return;
@@ -1301,15 +1716,12 @@
             $('chatPartnerStatus').innerHTML = `<span class="w-2 h-2 ${dc} rounded-full inline-block"></span> ${st}`;
             updateHeaderName();
         });
-
         if (unsubscribeChatDoc) unsubscribeChatDoc();
         unsubscribeChatDoc = db.collection('chats').doc(chatId).onSnapshot(doc => {
             if (doc.exists) { activeChatData = doc.data(); updateHeaderName(); }
         });
-
         loadMessages(chatId);
     }
-
     function updateHeaderName() {
         if (!activeChatData || !activePartnerId) return;
         const nick = getNicknameForUser(activeChatData, activePartnerId);
@@ -1317,7 +1729,6 @@
         const display = nick || real || 'Unknown';
         $('chatPartnerName').innerHTML = `${escapeHtml(display)}${nick ? '<i class="fa-solid fa-tag text-[10px] text-blue-400 ml-1"></i>' : ''}`;
     }
-
     $('backToInboxBtn').addEventListener('click', () => {
         if (unsubscribeMessages) unsubscribeMessages();
         if (unsubscribePartnerStatus) unsubscribePartnerStatus();
@@ -1329,7 +1740,6 @@
         loadChatList();
     });
 
-    // LOAD MESSAGES
     function loadMessages(chatId) {
         if (unsubscribeMessages) unsubscribeMessages();
         unsubscribeMessages = db.collection('chats').doc(chatId).collection('messages')
@@ -1340,16 +1750,13 @@
               const prevScrollTop = container.scrollTop;
               const isFirstLoad = (container.dataset.loaded !== chatId);
               const nearBottom = prevScrollHeight - prevScrollTop - container.clientHeight < 150;
-
               container.innerHTML = '';
               let prevDate = null;
-
               snapshot.forEach(doc => {
                   const msg = doc.data();
                   const msgId = doc.id;
                   const isMe = msg.senderId === currentUser.uid;
                   const msgType = msg.type || 'text';
-
                   if (msg.timestamp) {
                       const msgDate = msg.timestamp.toDate();
                       const dayKey = msgDate.toDateString();
@@ -1361,24 +1768,18 @@
                           prevDate = dayKey;
                       }
                   }
-
                   const timeStr = msg.timestamp ? msg.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-
                   const rowDiv = document.createElement('div');
                   rowDiv.className = `msg-row ${isMe ? 'justify-end' : 'justify-start'}`;
                   rowDiv.dataset.msgId = msgId;
-
                   const indicator = document.createElement('div');
                   indicator.className = 'swipe-indicator';
                   indicator.innerHTML = '<i class="fa-solid fa-reply"></i>';
-
                   const wrapDiv = document.createElement('div');
                   wrapDiv.className = 'msg-wrap';
                   wrapDiv.dataset.msgId = msgId;
-
                   const bubble = document.createElement('div');
                   bubble.className = `px-4 py-2.5 text-sm ${isMe ? 'bubble-me text-white' : 'bubble-other text-gray-200'}`;
-
                   let contentHTML = '';
                   if (msgType === 'image') {
                       if (msg.view_once && msg.viewed) contentHTML = `<div class="text-xs italic text-gray-400 py-1"><i class="fa-solid fa-eye-slash mr-1"></i>ছবিটি দেখা হয়েছে</div>`;
@@ -1387,7 +1788,6 @@
                   } else {
                       contentHTML = `<div class="leading-relaxed break-words">${escapeHtml(msg.text)}</div>`;
                   }
-
                   let quoteHTML = '';
                   if (msg.replyTo) {
                       const qc = isMe ? 'quoted-me' : 'quoted-other';
@@ -1395,20 +1795,16 @@
                       const pt = rt === 'image' ? '📷 ছবি' : escapeHtml(msg.replyTo.text || '').substring(0, 60);
                       quoteHTML = `<div class="quoted-msg ${qc}" onclick="event.stopPropagation(); scrollToMessage('${msg.replyTo.msgId}')"><div class="font-bold mb-0.5 text-[11px]">${escapeHtml(msg.replyTo.senderName || '')}</div><div class="truncate text-[11px] opacity-90">${pt}</div></div>`;
                   }
-
                   let tickHTML = '';
                   if (isMe) {
                       if (msg.synced === false) tickHTML = '<i class="fa-solid fa-clock text-blue-200 ml-1"></i>';
                       else if (msg.read) tickHTML = '<i class="fa-solid fa-check-double text-cyan-300 ml-1"></i>';
                       else tickHTML = '<i class="fa-solid fa-check-double text-blue-200 ml-1"></i>';
                   }
-
                   let senderNameHTML = '';
                   if (!isMe) senderNameHTML = `<div class="text-xs font-bold text-blue-400 mb-0.5">${escapeHtml(msg.senderName || 'Unknown')}</div>`;
-
                   bubble.innerHTML = `${quoteHTML}${senderNameHTML}${contentHTML}<div class="text-[10px] text-right mt-0.5 ${isMe ? 'text-blue-100/80' : 'text-gray-500'}">${timeStr}${tickHTML}</div>`;
                   wrapDiv.appendChild(bubble);
-
                   if (msg.reactions) {
                       const counts = {};
                       Object.values(msg.reactions).forEach(e => { counts[e] = (counts[e] || 0) + 1; });
@@ -1420,16 +1816,12 @@
                           bubble.appendChild(badge);
                       }
                   }
-
                   rowDiv.appendChild(indicator);
                   rowDiv.appendChild(wrapDiv);
                   container.appendChild(rowDiv);
-
                   attachMessageHandlers(wrapDiv, indicator, msg, msgId, isMe, msgType);
               });
-
               checkTyping();
-
               requestAnimationFrame(() => {
                   if (isFirstLoad || nearBottom) {
                       container.scrollTop = container.scrollHeight;
@@ -1441,26 +1833,21 @@
               });
               updateScrollButton();
           });
-
         db.collection('chats').doc(chatId).onSnapshot(doc => {
             if (doc.exists && activeChatId === chatId) checkTyping();
         });
     }
-
     function updateScrollButton() {
         const c = $('messagesContainer');
         const near = c.scrollHeight - c.scrollTop - c.clientHeight < 100;
         if (near) { $('scrollToBottomBtn').classList.add('hide'); $('scrollToBottomBtn').classList.remove('show'); }
         else { $('scrollToBottomBtn').classList.remove('hide'); $('scrollToBottomBtn').classList.add('show'); }
     }
-
-    // MESSAGE HANDLERS
     function attachMessageHandlers(wrapEl, indicatorEl, msg, msgId, isMe, msgType) {
         let startX = 0, startY = 0, currentX = 0;
         let isDragging = false, isHorizontal = false, hasMoved = false;
         let longPressTimer = null;
         const THRESHOLD = 65, MAX_SWIPE = 90;
-
         const onStart = (e) => {
             const t = e.touches ? e.touches[0] : e;
             startX = t.clientX; startY = t.clientY;
@@ -1523,8 +1910,6 @@
         wrapEl.addEventListener('mouseup', onEnd);
         wrapEl.addEventListener('mouseleave', () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } if (isDragging) onEnd(); });
     }
-
-    // REACTION POPUP
     function showReactionPopup(el, msg, msgId, isMe, msgType) {
         popupTarget = { msg, msgId, isMe, msgType: msgType || 'text' };
         if (isMe) { $('popupDeleteBtn').classList.remove('hidden'); $('popupDeleteBtn').classList.add('flex'); }
@@ -1545,7 +1930,6 @@
         rp.style.top = top + 'px';
     }
     function hideReactionPopup() { $('reactionPopup').classList.add('hidden'); popupTarget = null; }
-
     document.querySelectorAll('.reaction-emoji').forEach(el => {
         el.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -1560,7 +1944,6 @@
             hideReactionPopup();
         });
     });
-
     $('popupReplyBtn').addEventListener('click', (e) => { e.stopPropagation(); if (!popupTarget) return; activateReply(popupTarget.msg, popupTarget.msgId, popupTarget.msgType); hideReactionPopup(); });
     $('popupCopyBtn').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1579,11 +1962,9 @@
         showToast('ডিলিট হয়েছে');
         hideReactionPopup();
     });
-
     document.addEventListener('click', (e) => { if (!$('reactionPopup').classList.contains('hidden') && !$('reactionPopup').contains(e.target)) hideReactionPopup(); });
     document.addEventListener('touchstart', (e) => { if (!$('reactionPopup').classList.contains('hidden') && !$('reactionPopup').contains(e.target)) hideReactionPopup(); }, { passive: true });
 
-    // REPLY
     function activateReply(msg, msgId, msgType) {
         const type = msgType || msg.type || 'text';
         replyingTo = { msgId, text: type === 'image' ? '📷 ছবি' : (msg.text || ''), type, senderName: msg.senderName || 'Unknown', senderId: msg.senderId };
@@ -1600,7 +1981,6 @@
         const el = $('messagesContainer').querySelector(`[data-msg-id="${msgId}"]`);
         if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('highlight-target'); setTimeout(() => el.classList.remove('highlight-target'), 1500); }
     };
-
     async function checkTyping() {
         if (!activeChatId || !activePartnerId) return;
         const d = await db.collection('chats').doc(activeChatId).get();
@@ -1619,7 +1999,6 @@
         if (d < 7) return date.toLocaleDateString('bn-BD', { weekday: 'long' });
         return date.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
     }
-
     $('messagesContainer').addEventListener('scroll', updateScrollButton);
     $('scrollToBottomBtn').addEventListener('click', () => {
         const c = $('messagesContainer');
@@ -1627,14 +2006,11 @@
         $('scrollToBottomBtn').classList.add('hide');
         $('scrollToBottomBtn').classList.remove('show');
     });
-
     window.viewOnceImage = async (chatId, msgId, data) => {
         const w = window.open();
         w.document.write(`<html><head><title>ShohojChat</title><style>body{margin:0;background:#0a0f1c;display:flex;align-items:center;justify-content:center;height:100vh;}</style></head><body><img src="${data}" style="max-width:100%; max-height:100vh; display:block;"></body></html>`);
         await db.collection('chats').doc(chatId).collection('messages').doc(msgId).update({ viewed: true, text: "" });
     };
-
-    // SEND
     $('sendBtn').addEventListener('click', () => sendMessage('text'));
     $('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage('text'); } });
     $('messageInput').addEventListener('input', async () => {
@@ -1645,7 +2021,6 @@
             db.collection('chats').doc(activeChatId).update({ [`typing.${currentUser.uid}`]: firebase.firestore.FieldValue.delete() }).catch(()=>{});
         }, 3000);
     });
-
     $('chatImageBtn').addEventListener('click', () => $('chatImageInput').click());
     $('chatImageInput').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -1671,7 +2046,6 @@
             reader.readAsDataURL(file);
         }
     });
-
     async function sendMessage(type = 'text', imageData = null, viewOnce = false) {
         let text = $('messageInput').value.trim();
         if (type === 'text' && text === '') return;
@@ -1714,7 +2088,6 @@
             else alert("সমস্যা: " + err.message);
         }
     }
-
     $('emojiToggle').addEventListener('click', () => $('emojiPicker').classList.toggle('hidden'));
     document.querySelectorAll('.emoji-btn').forEach(b => {
         b.addEventListener('click', (e) => { $('messageInput').value += e.target.innerText; $('messageInput').focus(); });
@@ -1724,7 +2097,6 @@
     $('settingsBtn').addEventListener('click', () => { updateSettingsUI(); showScreen(settingsScreen); });
     $('backFromSettingsBtn').addEventListener('click', () => showScreen(inboxScreen));
     $('settingsLogoutBtn').addEventListener('click', logout);
-
     $('settingsClearAllChats').addEventListener('click', async () => {
         if (!confirm('আপনার সব চ্যাট ডিলিট হয়ে যাবে। আপনি নিশ্চিত?')) return;
         const snap = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
@@ -1737,7 +2109,6 @@
         showScreen(inboxScreen);
         loadChatList();
     });
-
     $('settingsExportChats').addEventListener('click', async () => {
         showToast('ব্যাকআপ তৈরি হচ্ছে...');
         const snap = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
@@ -1756,14 +2127,10 @@
         URL.revokeObjectURL(url);
         showToast('ব্যাকআপ ডাউনলোড হয়েছে!');
     });
-
     $('settingsManageReels').addEventListener('click', () => { showScreen(reelsScreen); renderReels(); });
-
-    // REQUESTS
+    $('settingsLockApp').addEventListener('click', lockApp);
     $('requestsBtn').addEventListener('click', () => { loadRequestsList(); showScreen(requestsScreen); });
     $('backFromRequestsBtn').addEventListener('click', () => showScreen(inboxScreen));
-
-    // CHAT MENU
     $('chatMenuBtn').addEventListener('click', (e) => {
         e.stopPropagation();
         const popup = $('chatMenuPopup');
@@ -1783,19 +2150,33 @@
     document.addEventListener('click', (e) => {
         if (!$('chatMenuPopup').classList.contains('hidden') && !$('chatMenuPopup').contains(e.target)) $('chatMenuPopup').classList.add('hidden');
     });
-
     $('chatHeaderInfo').addEventListener('click', openNicknameModal);
+
+    // Back button
+    window.addEventListener('popstate', (e) => {
+        if (!noteEditScreen.classList.contains('hidden')) {
+            closeNoteEditor(true);
+            history.pushState(null, '', location.href);
+        } else if (!chatRoomScreen.classList.contains('hidden')) {
+            $('backToInboxBtn').click();
+            history.pushState(null, '', location.href);
+        } else if (!inboxScreen.classList.contains('hidden')) {
+            lockApp();
+            history.pushState(null, '', location.href);
+        }
+    });
+    history.pushState(null, '', location.href);
+
+    // Initialize
+    loadNotes();
+    renderNotes();
 </script>
 
-<!-- ============================================
-     SERVICE WORKER (PWA - APK support)
-     ============================================ -->
+<!-- Service Worker -->
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then(reg => {
-                console.log('SW registered:', reg.scope);
-            }).catch(e => console.log('SW registration failed:', e));
+            navigator.serviceWorker.register('sw.js').catch(e => console.log('SW:', e));
         });
     }
 </script>
